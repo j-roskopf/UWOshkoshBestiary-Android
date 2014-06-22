@@ -22,6 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.example.uwoshkoshbestiary.NewSubmission"
+            android:label="@string/title_activity_new_submission" >
+        </activity>
+        <activity
+            android:name="com.example.uwoshkoshbestiary.ExistingSubmission"
+            android:label="@string/title_activity_existing_submission" >
+        </activity>
     </application>
 
 </manifest>

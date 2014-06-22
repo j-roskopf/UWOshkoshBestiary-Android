@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/container"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        
+    <LinearLayout
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/photoVideoButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".3"
+            android:text="Add Photo/Video" />
+
+        <Button
+            android:id="@+id/viewVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".3"
+            android:text="View Video" />
+	        
+	 </LinearLayout>
+
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="match_parent"
+            android:layout_height="127dp"
+            android:src="@android:drawable/ic_menu_mylocation" />
+
+        <Button
+            android:id="@+id/addAudio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Audio" />
+
+        <TextView
+            android:id="@+id/audioStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Not Recorded" />
+
+        <EditText
+            android:id="@+id/firstNameTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:hint="First Name" />
+
+        <EditText
+            android:id="@+id/lastNameTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Last Name" />
+
+        <EditText
+            android:id="@+id/emailTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textEmailAddress"
+            android:hint="Email" />
+        
+        <TextView
+            android:id="@+id/affiliation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Affiliation" />
+        
+                <Spinner
+            android:id="@+id/affiliationSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/groupSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+        
+
+          <EditText
+            android:id="@+id/commonNameTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:hint="Common Name" />
+
+          <EditText
+              android:id="@+id/speciesTextField"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Species"
+              android:ems="10" >
+
+              <requestFocus />
+          </EditText>
+
+          <EditText
+              android:id="@+id/amountTextField"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:ems="10"
+              android:hint="Amount of animal seen"
+              android:inputType="numberSigned" />
+
+          <EditText
+              android:id="@+id/behavorialDescriptionTextField"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:ems="10"
+              android:hint="Behavorial Description"
+              android:inputType="textMultiLine" />
+          
+          
+
+           <Spinner
+               android:id="@+id/countySpinner"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/observationTechniqueSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/observationTechniqueOtherTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Obersvational Technique (Other)"
+            android:inputType="textMultiLine" />
+        
+        <EditText
+            android:id="@+id/ecosystemTypeTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Ecosystem Type"
+            android:inputType="textMultiLine" />
+        
+        <EditText
+            android:id="@+id/additionalInformationTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Additional Information"
+            android:inputType="textMultiLine" />
+
+        <Button
+            android:id="@+id/collectionLocationManuallyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Collect Location Manually" />
+
+        <EditText
+            android:id="@+id/latitudeTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Latitude"
+            android:inputType="numberDecimal" />
+        
+        <EditText
+            android:id="@+id/longitudeTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Longitude"
+            android:inputType="numberDecimal" />
+        
+        <EditText
+            android:id="@+id/altitudeTextField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Altitude"
+            android:inputType="numberDecimal" />
+        
+       <TextView
+            android:id="@+id/privatyTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="I want my location to be" />
+       
+       <Spinner
+            android:id="@+id/privacySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+       
+       <Button
+            android:id="@+id/weatherDatabutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Weather Data Collected" />
+       
+       <Button
+            android:id="@+id/discardButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Discard" />
+       
+       <Button
+            android:id="@+id/collectionLocationManuallyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Collect Location Manually" />
+       
+       <Button
+            android:id="@+id/collectionLocationManuallyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Collect Location Manually" />
+       
+       
+
+    </LinearLayout>
+    
+
+</ScrollView>
