@@ -9,5 +9,131 @@
     <string name="title_activity_new_submission">NewSubmission</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_existing_submission">ExistingSubmission</string>
+    <string name="county_prompt">Choose a county</string>
+    <string name="affiliation_prompt">Choose an affiliation</string>
+    <string name="privacy_prompt">Choose a privacy setting</string>
+    <string name="group_prompt">Choose a group</string>
+    <string name="observational_prompt">Choose an observational technique</string>
+
+    <string-array name="county_array">
+        <item>Choose a county</item>
+        <item>Adams</item>
+        <item>Ashland</item>
+        <item>Barron</item>
+        <item>Bayfield</item>
+        <item>Brown</item>
+        <item>Buffalo</item>
+        <item>Burnett</item>
+        <item>Calumet</item>
+        <item>Chippewa</item>
+        <item>Clark</item>
+        <item>Columba</item>
+        <item>Crawford</item>
+        <item>Dane</item>
+        <item>Dodge</item>
+        <item>Door</item>
+        <item>Douglan</item>
+        <item>Dunn</item>
+        <item>Eau Claire</item>
+        <item>Florence</item>
+        <item>Fond du Lac</item>
+        <item>Forest</item>
+        <item>Grant</item>
+        <item>Green</item>
+        <item>Green Lake</item>
+        <item>Iowa</item>
+        <item>Iron</item>
+        <item>Jackson</item>
+        <item>Jefferson</item>
+        <item>Juneau</item>
+        <item>Kenosha</item>
+        <item>Kewaunee</item>
+        <item>LaCrosse</item>
+        <item>Lafayette</item>
+        <item>Langlade</item>
+        <item>Lincoln</item>
+        <item>Manitowoc</item>
+        <item>Marathon</item>
+        <item>Marinette</item>
+        <item>Marquette</item>
+        <item>Menominee</item>
+        <item>Milwaukee</item>
+        <item>Monroe</item>
+        <item>Oconto</item>
+        <item>Oneida</item>
+        <item>Outagamie</item>
+        <item>Ozaukee</item>
+        <item>Pepin</item>
+        <item>Pierce</item>
+        <item>Polk</item>
+        <item>Portage</item>
+        <item>Price</item>
+        <item>Racine</item>
+        <item>Richland</item>
+        <item>Rock</item>
+        <item>Rusk</item>
+        <item>Saint Croix</item>
+        <item>Sauk</item>
+        <item>Sawyer</item>
+        <item>Shawano</item>
+        <item>Sheboygan</item>
+        <item>Taylor</item>
+        <item>Trempealeau</item>
+        <item>Vernon</item>
+        <item>Vilas</item>
+        <item>Walworth</item>
+        <item>Washburn</item>
+        <item>Washington</item>
+        <item>Waukesha</item>
+        <item>Waupaca</item>
+        <item>Waushara</item>
+        <item>Winnebago</item>
+        <item>Wood</item>
+    </string-array>
+    <string-array name="group_array">
+        <item>Choose a group/phyla</item>
+        <item>Ameba</item>
+        <item>Amphibians</item>
+        <item>Bird</item>
+        <item>Butterflies</item>
+        <item>Centipedes</item>
+        <item>Ciliates</item>
+        <item>Crustacean</item>
+        <item>Dragonflies</item>
+        <item>Fish</item>
+        <item>Flagellate</item>
+        <item>Flatworm</item>
+        <item>Hydrai</item>
+        <item>Leech</item>
+        <item>Mammal</item>
+        <item>Millpedes</item>
+        <item>Mussels</item>
+        <item>Reptile</item>
+        <item>Rotifer</item>
+        <item>Slug/Snail</item>
+        <item>Sponge</item>
+        <item>Ticks/Spiders</item>
+        <item>Unsure</item>
+    </string-array>
+    <string-array name="affiliation_array">
+        <item>Choose an affiliation</item>
+        <item>UW Oshkosh</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="privacy_array">
+        <item>Choose a privacy setting</item>
+        <item>Public</item>
+        <item>Private</item>
+        <item>Obscured</item>
+    </string-array>
+    <string-array name="observational_array">
+        <item>Choose an observational technique</item>
+        <item>Casual</item>
+        <item>Stationary</item>
+        <item>Traveling</item>
+        <item>Area</item>
+    </string-array>
+
+    <string name="title_activity_vew_video">Vew Video</string>
 
 </resources>

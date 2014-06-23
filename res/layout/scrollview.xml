@@ -4,6 +4,7 @@
     android:id="@+id/container"
     android:layout_height="match_parent" >
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -80,15 +81,19 @@
             android:gravity="center"
             android:text="Affiliation" />
         
-                <Spinner
+        <Spinner
             android:id="@+id/affiliationSpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:entries="@array/affiliation_array"
+            android:prompt="@string/affiliation_prompt" />
 
         <Spinner
             android:id="@+id/groupSpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:entries="@array/group_array"
+            android:prompt="@string/group_prompt" />
 
 
         
@@ -108,7 +113,6 @@
               android:hint="Species"
               android:ems="10" >
 
-              <requestFocus />
           </EditText>
 
           <EditText
@@ -128,16 +132,19 @@
               android:inputType="textMultiLine" />
           
           
-
            <Spinner
                android:id="@+id/countySpinner"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content" />
+               android:layout_width="fill_parent"
+               android:layout_height="wrap_content"
+               android:entries="@array/county_array"
+               android:prompt="@string/county_prompt" />
 
         <Spinner
             android:id="@+id/observationTechniqueSpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:entries="@array/observational_array"
+            android:prompt="@string/observational_prompt" />
 
         <EditText
             android:id="@+id/observationTechniqueOtherTextField"
@@ -204,7 +211,9 @@
        <Spinner
             android:id="@+id/privacySpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:entries="@array/privacy_array"
+            android:prompt="@string/privacy_prompt" />
        
        <Button
             android:id="@+id/weatherDatabutton"
@@ -221,18 +230,18 @@
             android:text="Discard" />
        
        <Button
-            android:id="@+id/collectionLocationManuallyButton"
+            android:id="@+id/saveButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Collect Location Manually" />
+            android:text="Save Changes" />
        
        <Button
-            android:id="@+id/collectionLocationManuallyButton"
+            android:id="@+id/submitButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Collect Location Manually" />
+            android:text="Submit" />
        
        
 
