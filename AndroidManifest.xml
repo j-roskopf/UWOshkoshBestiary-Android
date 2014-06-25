@@ -5,13 +5,16 @@
     android:versionName="1.0" >
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="19" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -38,6 +41,10 @@
         <activity
             android:name="com.example.uwoshkoshbestiary.ViewVideo"
             android:label="@string/title_activity_vew_video" >
+        </activity>
+        <activity
+            android:name="com.example.uwoshkoshbestiary.AudioRecording"
+            android:label="@string/title_activity_audio_recording" >
         </activity>
     </application>
 

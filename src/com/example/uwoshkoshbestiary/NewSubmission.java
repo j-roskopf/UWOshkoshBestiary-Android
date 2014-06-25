@@ -2,10 +2,14 @@ package com.example.uwoshkoshbestiary;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -19,6 +23,11 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -35,6 +44,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -42,7 +52,7 @@ import android.widget.Toast;
 import android.os.Build;
 import android.provider.MediaStore;
 
-public class NewSubmission extends Fragment {
+public class NewSubmission extends Fragment implements LocationListener {
 
 	// UI References
 	CheckBox cb;
@@ -54,7 +64,11 @@ public class NewSubmission extends Fragment {
 	Spinner affiliationSpinner;
 	Button photoVideoButton;
 	Button viewVideoButton;
+	Button audioButton;
 	ImageView capturedPicture;
+	EditText altitudeEditText;
+	EditText longitudeEditText;
+	EditText latitudeEditText;
 
 	// Activity request codes
 	private static final int VIDEO_CAPTURE = 101;
@@ -72,6 +86,16 @@ public class NewSubmission extends Fragment {
 	Uri videoFileUri;
 
 	private static View view;
+
+	// Location objects
+	LocationManager lm;
+	Location location;
+	double longitude;
+	double latitude;
+	double altitude;
+	Geocoder gcd;
+	String locationToSend;
+	LocationListener ll;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -97,6 +121,82 @@ public class NewSubmission extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		
+		altitudeEditText = (EditText)getActivity().findViewById(R.id.altitudeTextField);
+		longitudeEditText = (EditText)getActivity().findViewById(R.id.longitudeTextField);
+		latitudeEditText = (EditText)getActivity().findViewById(R.id.latitudeTextField);
+		
+		//Save location listener to fragment so you can stop updates later
+		ll = this;
+
+		lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+		if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+				|| lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+			location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			if (location != null) {
+				//Set TextField with gathered location
+				altitudeEditText.setText(location.getAltitude()+"");
+				latitudeEditText.setText(location.getLatitude()+"");
+				longitudeEditText.setText(location.getLongitude()+"");
+				
+				if(location.hasAltitude())
+				{
+					Log.d("it does","it does");
+				}
+				else
+				{
+					Log.d("it doesn't","it doesn't");
+				}
+
+				
+				lm.removeUpdates(ll);
+
+			} else {
+				lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,
+						0, this);
+				lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+						this);
+			}
+
+		} else {
+			// The user doesn't have location enabled.
+			// Prompt them with an alert that they can click to go to their
+			// settings
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+					getActivity());
+
+			// set title
+			alertDialogBuilder.setTitle("Alert: Location Disabled");
+
+			// set dialog message
+			alertDialogBuilder
+					.setMessage("Unable to collect location")
+					.setCancelable(false)
+					.setPositiveButton("Okay",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id) {
+
+								}
+							})
+					.setNegativeButton("Settings",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id) {
+									Intent dialogIntent = new Intent(
+											android.provider.Settings.ACTION_SETTINGS);
+									dialogIntent
+											.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+									startActivity(dialogIntent);
+								}
+							});
+
+			// create alert dialog
+			AlertDialog alertDialog = alertDialogBuilder.create();
+
+			// show it
+			alertDialog.show();
+		}
 
 		// Set scrollview to be at the top
 		sv = (ScrollView) getActivity().findViewById(R.id.container);
@@ -117,6 +217,22 @@ public class NewSubmission extends Fragment {
 				}
 			}
 		});
+
+		// Add listener to audio button to start the audio recording activity
+		audioButton = (Button) getActivity().findViewById(R.id.addAudio);
+		audioButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				Intent ar = new Intent(getActivity(), AudioRecording.class);
+				ar.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(ar);
+
+			}
+
+		});
+
 		capturedPicture = (ImageView) getActivity().findViewById(
 				R.id.capturedPicture);
 		photoVideoButton = (Button) getActivity().findViewById(
@@ -279,6 +395,8 @@ public class NewSubmission extends Fragment {
 		videoFileUri = null;
 
 	}
+	
+
 
 	@SuppressLint("NewApi")
 	@Override
@@ -304,124 +422,170 @@ public class NewSubmission extends Fragment {
 						imageFileUri.getPath(), options);
 
 				capturedPicture.setImageBitmap(bitmap);
+
+				// Save file path to Entry class
+				Entry.setPhotoPath(imageFileUri.getPath());
 			} catch (NullPointerException e) {
 				e.printStackTrace();
-			}
-		} else if (requestCode == VIDEO_CAPTURE) {
-			if (resultCode == Activity.RESULT_OK) {
-				if (oldVideoFileUri != null) {
-					deleteOldFile(oldVideoFileUri.getPath());
-				}
-			} else {
-				// failed to record video
-				Toast.makeText(getActivity(), "Sorry! Failed to record video",
-						Toast.LENGTH_SHORT).show();
 			}
 		}
 		// Pre kitkat
 		else if (requestCode == GALLERY_CHOSEN_VIDEO) {
-			oldVideoFileUri = videoFileUri;
-			Uri uri = data.getData();
-			videoFileUri = uri;
+			// Check to make sure the user didn't cancel the image selection
+			if (data != null) {
+				oldVideoFileUri = videoFileUri;
+				Uri uri = data.getData();
+				videoFileUri = uri;
 
-			if (oldVideoFileUri != null) {
-				deleteOldFile(oldVideoFileUri.getPath());
+				// Save file path to Entry class
+				Entry.setPhotoPath(videoFileUri.getPath());
+
+				// Delete old recorded video
+				if (oldVideoFileUri != null) {
+					deleteOldFile(oldVideoFileUri.getPath());
+				}
 			}
 
 		}
 		// Pre kitkat
 		else if (requestCode == GALLERY_CHOSEN_IMAGE) {
-			oldImageFileUri = imageFileUri;
-			Uri uri = data.getData();
-			imageFileUri = uri;
+			// Check to make sure the user didn't cancel the image selection
+			if (data != null) {
+				oldImageFileUri = imageFileUri;
+				Uri uri = data.getData();
+				imageFileUri = uri;
 
-			// Delete the old image. Don't want to take up too much space.
-			if (oldImageFileUri != null) {
-				deleteOldFile(oldImageFileUri.getPath());
+				// Save file path to Entry class
+				Entry.setPhotoPath(imageFileUri.getPath());
+
+				// Delete the old image. Don't want to take up too much space.
+				if (oldImageFileUri != null) {
+					deleteOldFile(oldImageFileUri.getPath());
+				}
+
+				// bimatp factory
+				BitmapFactory.Options options = new BitmapFactory.Options();
+
+				// downsizing image as it throws OutOfMemory Exception for
+				// larger
+				// images
+				options.inSampleSize = 2;
+
+				final Bitmap bitmap = BitmapFactory.decodeFile(
+						imageFileUri.getPath(), options);
+
+				capturedPicture.setImageBitmap(bitmap);
+
+				// Delete the old image
+				if (oldImageFileUri != null) {
+					deleteOldFile(oldImageFileUri.getPath());
+				}
 			}
 
-			// bimatp factory
-			BitmapFactory.Options options = new BitmapFactory.Options();
-
-			// downsizing image as it throws OutOfMemory Exception for
-			// larger
-			// images
-			options.inSampleSize = 2;
-
-			final Bitmap bitmap = BitmapFactory.decodeFile(
-					imageFileUri.getPath(), options);
-
-			capturedPicture.setImageBitmap(bitmap);
-
-			if (oldImageFileUri != null) {
-				deleteOldFile(oldImageFileUri.getPath());
-			}
 		}
 		// Kitkat
 		else if (requestCode == GALLERY_KITKAT_INTENT_CALLED_VIDEO) {
-			oldVideoFileUri = videoFileUri;
-			String path = getVideoPath(data.getData());
-			
-			Log.d("here",path);
-			
-			File externalFile = new File(path);
-			Uri videoFile = Uri.fromFile(externalFile);
+			// Check to make sure the user didn't cancel the image selection
+			if (data != null) {
+				oldVideoFileUri = videoFileUri;
+				String path = getVideoPath(data.getData());
 
-			videoFileUri = videoFile;
+				// Save file path to Entry class
+				Entry.setPhotoPath(path);
 
-			if (oldVideoFileUri != null) {
-				deleteOldFile(oldVideoFileUri.getPath());
+				File externalFile = new File(path);
+				Uri videoFile = Uri.fromFile(externalFile);
+
+				videoFileUri = videoFile;
+
+				if (oldVideoFileUri != null) {
+					deleteOldFile(oldVideoFileUri.getPath());
+				}
 			}
 
 		}
 		// Kitkat
 		else if (requestCode == GALLERY_KITKAT_INTENT_CALLED_IMAGE) {
-			oldImageFileUri = imageFileUri;
-			Uri selectedImageURI = data.getData();
+			// Check to make sure the user didn't cancel the image selection
+			if (data != null) {
+				oldImageFileUri = imageFileUri;
 
-			InputStream input = null;
-			try {
-				input = getActivity().getContentResolver()
-						.openInputStream(selectedImageURI);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Uri selectedImageURI = data.getData();
+
+				String pathToSelectedImage = getImagePath(selectedImageURI);
+
+				// Save file path to Entry class
+				Entry.setPhotoPath(pathToSelectedImage);
+
+				InputStream input = null;
+				try {
+					input = getActivity().getContentResolver().openInputStream(
+							selectedImageURI);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// bimatp factory
+				BitmapFactory.Options options = new BitmapFactory.Options();
+
+				// downsizing image as it throws OutOfMemory Exception for
+				// larger
+				// images
+				options.inSampleSize = 2;
+
+				final Bitmap bitmap = BitmapFactory.decodeStream(input, null,
+						options);
+				// Delete the old image. Don't want to take up too much space.
+				if (oldImageFileUri != null) {
+					deleteOldFile(oldImageFileUri.getPath());
+				}
+
+				capturedPicture.setImageBitmap(bitmap);
+
 			}
-			// bimatp factory
-			BitmapFactory.Options options = new BitmapFactory.Options();
-
-			// downsizing image as it throws OutOfMemory Exception for
-			// larger
-			// images
-			options.inSampleSize = 2;
-
-			final Bitmap bitmap = BitmapFactory.decodeStream(input, null, options);
-			// Delete the old image. Don't want to take up too much space.
-			if (oldImageFileUri != null) {
-				deleteOldFile(oldImageFileUri.getPath());
-			}
-
-			capturedPicture.setImageBitmap(bitmap);
 
 		}
 	}
 
-	public String getVideoPath(Uri uri){
-		   Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
-		   cursor.moveToFirst();
-		   String document_id = cursor.getString(0);
-		   document_id = document_id.substring(document_id.lastIndexOf(":")+1);
-		   cursor.close();
+	public String getVideoPath(Uri uri) {
+		Cursor cursor = getActivity().getContentResolver().query(uri, null,
+				null, null, null);
+		cursor.moveToFirst();
+		String document_id = cursor.getString(0);
+		document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+		cursor.close();
 
-		   cursor = getActivity().getContentResolver().query( 
-		   android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-		   null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
-		   cursor.moveToFirst();
-		   String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-		   cursor.close();
+		cursor = getActivity().getContentResolver().query(
+				android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+				null, MediaStore.Images.Media._ID + " = ? ",
+				new String[] { document_id }, null);
+		cursor.moveToFirst();
+		String path = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Video.Media.DATA));
+		cursor.close();
 
-		   return path;
-		}
+		return path;
+	}
+
+	public String getImagePath(Uri uri) {
+		Cursor cursor = getActivity().getContentResolver().query(uri, null,
+				null, null, null);
+		cursor.moveToFirst();
+		String document_id = cursor.getString(0);
+		document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+		cursor.close();
+
+		cursor = getActivity().getContentResolver().query(
+				android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+				null, MediaStore.Images.Media._ID + " = ? ",
+				new String[] { document_id }, null);
+		cursor.moveToFirst();
+		String path = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Video.Media.DATA));
+		cursor.close();
+
+		return path;
+	}
 
 	private void deleteOldFile(String path) {
 		File fdelete = new File(path);
@@ -477,7 +641,57 @@ public class NewSubmission extends Fragment {
 		if (imageFileUri != null) {
 			deleteOldFile(imageFileUri.getPath());
 		}
+		
+		//Stop location manager
+	  	lm.removeUpdates(this);
 
+	}
+	
+	@Override
+	public void onResume(){
+		super.onResume();
+		//Try and get the location again
+		if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+		{
+			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+		}
+
+	}
+
+	@Override
+	public void onLocationChanged(Location arg0) {
+
+		//Set TextField with gathered location
+		altitudeEditText.setText(arg0.getAltitude()+"");
+		latitudeEditText.setText(arg0.getLatitude()+"");
+		longitudeEditText.setText(arg0.getLongitude()+"");
+
+		
+		lm.removeUpdates(ll);
+
+		//Stop location manager
+		lm.removeUpdates(this);
+
+		
+	}
+
+	@Override
+	public void onProviderDisabled(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

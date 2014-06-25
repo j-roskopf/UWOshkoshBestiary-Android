@@ -14,6 +14,10 @@
     <string name="privacy_prompt">Choose a privacy setting</string>
     <string name="group_prompt">Choose a group</string>
     <string name="observational_prompt">Choose an observational technique</string>
+	<string name="choose_format_title">Choose Audio Format</string>
+	<string name="start_recording">Record</string>
+	<string name="stop_recording">Stop</string>
+	<string name="audio_format">Format</string>
 
     <string-array name="county_array">
         <item>Choose a county</item>
@@ -135,5 +139,6 @@
     </string-array>
 
     <string name="title_activity_vew_video">Vew Video</string>
+    <string name="title_activity_audio_recording">AudioRecording</string>
 
 </resources>
