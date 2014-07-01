@@ -10,6 +10,13 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.http.Header;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.gson.Gson;
+
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -29,8 +36,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -65,6 +74,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 	Button photoVideoButton;
 	Button viewVideoButton;
 	Button audioButton;
+	Button weatherButton;
 	ImageView capturedPicture;
 	EditText altitudeEditText;
 	EditText longitudeEditText;
@@ -97,6 +107,10 @@ public class NewSubmission extends Fragment implements LocationListener {
 	String locationToSend;
 	LocationListener ll;
 
+	// Used to determine weather direction from degrees
+	String[] dirTable = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+			"S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -121,35 +135,41 @@ public class NewSubmission extends Fragment implements LocationListener {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		altitudeEditText = (EditText)getActivity().findViewById(R.id.altitudeTextField);
-		longitudeEditText = (EditText)getActivity().findViewById(R.id.longitudeTextField);
-		latitudeEditText = (EditText)getActivity().findViewById(R.id.latitudeTextField);
-		
-		//Save location listener to fragment so you can stop updates later
+
+		altitudeEditText = (EditText) getActivity().findViewById(
+				R.id.altitudeTextField);
+		longitudeEditText = (EditText) getActivity().findViewById(
+				R.id.longitudeTextField);
+		latitudeEditText = (EditText) getActivity().findViewById(
+				R.id.latitudeTextField);
+
+		// Save location listener to fragment so you can stop updates later
 		ll = this;
 
-		lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+		lm = (LocationManager) getActivity().getSystemService(
+				Context.LOCATION_SERVICE);
 		if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
 				|| lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 			location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 			if (location != null) {
-				//Set TextField with gathered location
-				altitudeEditText.setText(location.getAltitude()+"");
-				latitudeEditText.setText(location.getLatitude()+"");
-				longitudeEditText.setText(location.getLongitude()+"");
-				
-				if(location.hasAltitude())
-				{
-					Log.d("it does","it does");
-				}
-				else
-				{
-					Log.d("it doesn't","it doesn't");
-				}
+				// Store the location
+				latitude = location.getLatitude();
+				longitude = location.getLongitude();
+				altitude = location.getAltitude();
+				// Set TextField with gathered location
+				altitudeEditText.setText(altitude + "");
+				latitudeEditText.setText(latitude + "");
+				longitudeEditText.setText(longitude + "");
 
-				
 				lm.removeUpdates(ll);
+
+				// If weather is successfully retrieved, try and get weather too
+				try {
+					getWeather();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
 			} else {
 				lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,
@@ -228,6 +248,21 @@ public class NewSubmission extends Fragment implements LocationListener {
 				Intent ar = new Intent(getActivity(), AudioRecording.class);
 				ar.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(ar);
+
+			}
+
+		});
+
+		// Sets weather button to open new activity on press
+		weatherButton = (Button) getActivity().findViewById(
+				R.id.weatherDatabutton);
+		weatherButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent w = new Intent(getActivity(), ViewWeather.class);
+				w.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(w);
 
 			}
 
@@ -395,8 +430,6 @@ public class NewSubmission extends Fragment implements LocationListener {
 		videoFileUri = null;
 
 	}
-	
-
 
 	@SuppressLint("NewApi")
 	@Override
@@ -641,19 +674,20 @@ public class NewSubmission extends Fragment implements LocationListener {
 		if (imageFileUri != null) {
 			deleteOldFile(imageFileUri.getPath());
 		}
-		
-		//Stop location manager
-	  	lm.removeUpdates(this);
+
+		// Stop location manager
+		lm.removeUpdates(this);
 
 	}
-	
+
 	@Override
-	public void onResume(){
+	public void onResume() {
 		super.onResume();
-		//Try and get the location again
-		if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-		{
-			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+		// Try and get the location again
+		if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+				|| lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0,
+					this);
 			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 		}
 
@@ -661,37 +695,131 @@ public class NewSubmission extends Fragment implements LocationListener {
 
 	@Override
 	public void onLocationChanged(Location arg0) {
+		// Store the location
+		latitude = location.getLatitude();
+		longitude = location.getLongitude();
+		altitude = location.getAltitude();
 
-		//Set TextField with gathered location
-		altitudeEditText.setText(arg0.getAltitude()+"");
-		latitudeEditText.setText(arg0.getLatitude()+"");
-		longitudeEditText.setText(arg0.getLongitude()+"");
+		// Set TextField with gathered location
+		altitudeEditText.setText(arg0.getAltitude() + "");
+		latitudeEditText.setText(arg0.getLatitude() + "");
+		longitudeEditText.setText(arg0.getLongitude() + "");
 
-		
 		lm.removeUpdates(ll);
 
-		//Stop location manager
+		// Stop location manager
 		lm.removeUpdates(this);
 
-		
+		// If weather is successfully retrieved, try and get weather too
+		try {
+			getWeather();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
 	public void onProviderDisabled(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onProviderEnabled(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	public void getWeather() throws JSONException {
+
+		String url = "http://api.openweathermap.org/data/2.5/weather?lat="
+				+ latitude + "&lon=" + longitude;
+
+		new AsynchWeather().execute(url);
+	}
+
+	// Class that makes an Async call to the open weather api to return the
+	// weather
+	public class AsynchWeather extends AsyncTask<String, Context, String> {
+
+		@Override
+		protected String doInBackground(String... url) {
+
+			HTTPGet hg = new HTTPGet(url[0]);
+
+			return hg.responseString;
+
+		}
+
+		@Override
+		protected void onPostExecute(String jsonValue) {
+			// PARSE JSON VALUES
+			// Gson gson = new Gson();
+			// Weather w = gson.fromJson(jsonValue,Weather.class);
+
+			JSONObject jObj;
+			try {
+				jObj = new JSONObject(jsonValue);
+				JSONObject windObj = getObject("wind", jObj);
+
+				Entry.setWindDirection(dirTable[(int) Math.floor((getDouble(
+						"deg", windObj) + 11.25) / 22.5)]);
+				Entry.setWindSpeed(getDouble("speed", windObj) + "");
+
+				JSONObject mainObj = getObject("main", jObj);
+				Entry.setTemperature((getDouble("temp", mainObj) - 273.15) + "");
+				Entry.setPressure(getDouble("pressure", mainObj) + "");
+
+				// Open weather can return the precipitation measure in either
+				// 1h,2h,or 3h. Have to check for all 3
+				JSONObject rainObj = getObject("rain", jObj);
+
+				if (rainObj.has("1h")) {
+					Entry.setPrecipitationMeasure("1h");
+					Entry.setPrecipitation(getDouble("1h", rainObj) + "");
+				} else if (rainObj.has("2h")) {
+					Entry.setPrecipitationMeasure("2h");
+					Entry.setPrecipitation(getDouble("2h", rainObj) + "");
+				} else if (rainObj.has("3h")) {
+					Entry.setPrecipitationMeasure("3h");
+					Entry.setPrecipitation(getDouble("3h", rainObj)+"");
+				}
+
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+		private JSONObject getObject(String tagName, JSONObject jObj)
+				throws JSONException {
+			JSONObject subObj = jObj.getJSONObject(tagName);
+			return subObj;
+		}
+
+		private String getString(String tagName, JSONObject jObj)
+				throws JSONException {
+			return jObj.getString(tagName);
+		}
+
+		private double getDouble(String tagName, JSONObject jObj)
+				throws JSONException {
+			return jObj.getDouble(tagName);
+		}
+
+		private int getInt(String tagName, JSONObject jObj)
+				throws JSONException {
+			return jObj.getInt(tagName);
+		}
 	}
 
 }

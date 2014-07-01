@@ -5,6 +5,7 @@ public class Entry {
 	private static String photoPath;
 	private static String videoPath;
 	private static String audioPath;
+	
 	public static String getPhotoPath() {
 		return photoPath;
 	}
@@ -178,7 +179,14 @@ public class Entry {
 	private static String windDirection;
 	private static String pressure;
 	private static String precipitation;
-	
+	private static String precipitationMeasure;
+
+	public static String getPrecipitationMeasure() {
+		return precipitationMeasure;
+	}
+	public static void setPrecipitationMeasure(String precipitationMeasure) {
+		Entry.precipitationMeasure = precipitationMeasure;
+	}
 	
 
 }
