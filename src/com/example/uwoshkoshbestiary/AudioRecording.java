@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import database.Entry;
+
 import android.app.Activity;
 import android.media.AudioFormat;
 import android.media.AudioRecord;

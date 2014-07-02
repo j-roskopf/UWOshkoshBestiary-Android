@@ -17,6 +17,9 @@ import org.json.JSONObject;
 
 import com.google.gson.Gson;
 
+import database.DatabaseHelper;
+import database.Entry;
+
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -64,6 +67,8 @@ import android.provider.MediaStore;
 public class NewSubmission extends Fragment implements LocationListener {
 
 	// UI References
+	
+	//TOS checkbox
 	CheckBox cb;
 	ScrollView sv;
 	Spinner privacySpinner;
@@ -76,6 +81,18 @@ public class NewSubmission extends Fragment implements LocationListener {
 	Button audioButton;
 	Button weatherButton;
 	ImageView capturedPicture;
+	Button saveButton;
+	
+	EditText firstName;
+	EditText lastName;
+	EditText email;
+	EditText commonName;
+	EditText species;
+	EditText amount;
+	EditText behavorialDescription;
+	EditText ecosystem;
+	EditText observationalTechniqueOther;
+	EditText additionalInformation;
 	EditText altitudeEditText;
 	EditText longitudeEditText;
 	EditText latitudeEditText;
@@ -110,6 +127,12 @@ public class NewSubmission extends Fragment implements LocationListener {
 	// Used to determine weather direction from degrees
 	String[] dirTable = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
 			"S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
+	
+	//Database helper
+	DatabaseHelper db;
+	
+	//Context 
+	Context c;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -127,6 +150,8 @@ public class NewSubmission extends Fragment implements LocationListener {
 		} catch (InflateException e) {
 			/* map is already there, just return view as it is */
 		}
+		
+
 
 		return view;
 
@@ -135,13 +160,53 @@ public class NewSubmission extends Fragment implements LocationListener {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		
+		//Store context
+		c = getActivity();
+		
+		//instantiate database helper
+		db = new DatabaseHelper(getActivity());
 
+		//instantiate all of the edit texts / ui elements
+		affiliationSpinner = (Spinner) getActivity().findViewById(
+				R.id.affiliationSpinner);
+		groupSpinner = (Spinner) getActivity().findViewById(
+				R.id.groupSpinner);
+		countySpinner = (Spinner) getActivity().findViewById(
+				R.id.countySpinner);
+		observationalSpinner = (Spinner) getActivity().findViewById(
+				R.id.observationTechniqueSpinner);
+		privacySpinner = (Spinner) getActivity().findViewById(
+				R.id.privacySpinner);
+		altitudeEditText = (EditText) getActivity().findViewById(
+				R.id.altitudeTextField);
 		altitudeEditText = (EditText) getActivity().findViewById(
 				R.id.altitudeTextField);
 		longitudeEditText = (EditText) getActivity().findViewById(
 				R.id.longitudeTextField);
 		latitudeEditText = (EditText) getActivity().findViewById(
 				R.id.latitudeTextField);
+		firstName = (EditText) getActivity().findViewById(
+				R.id.firstNameTextField);
+		lastName = (EditText) getActivity().findViewById(
+				R.id.lastNameTextField);
+		email = (EditText) getActivity().findViewById(
+				R.id.emailTextField);
+		commonName = (EditText) getActivity().findViewById(
+				R.id.commonNameTextField);
+		species = (EditText) getActivity().findViewById(
+				R.id.speciesTextField);
+		amount = (EditText) getActivity().findViewById(
+				R.id.amountTextField);
+		behavorialDescription = (EditText) getActivity().findViewById(
+				R.id.behavorialDescriptionTextField);
+		observationalTechniqueOther = (EditText) getActivity().findViewById(
+				R.id.observationTechniqueOtherTextField);
+		ecosystem = (EditText) getActivity().findViewById(
+				R.id.ecosystemTypeTextField);
+		additionalInformation = (EditText) getActivity().findViewById(
+				R.id.additionalInformationTextField);
+
 
 		// Save location listener to fragment so you can stop updates later
 		ll = this;
@@ -160,6 +225,10 @@ public class NewSubmission extends Fragment implements LocationListener {
 				altitudeEditText.setText(altitude + "");
 				latitudeEditText.setText(latitude + "");
 				longitudeEditText.setText(longitude + "");
+				
+				Entry.setLongitude(longitude+"");
+				Entry.setLatitude(latitude+"");
+				Entry.setAltitude(altitude+"");
 
 				lm.removeUpdates(ll);
 
@@ -402,6 +471,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 			}
 
 		});
+		//Opens the activity that the user can view their video
 		viewVideoButton = (Button) getActivity().findViewById(R.id.viewVideo);
 		viewVideoButton.setOnClickListener(new OnClickListener() {
 
@@ -422,6 +492,72 @@ public class NewSubmission extends Fragment implements LocationListener {
 			}
 
 		});
+		
+		//Attempts to save the entry into the database
+		saveButton = (Button) getActivity().findViewById(R.id.saveButton);
+		saveButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				String message;
+				if(firstName.getText().toString().equals(""))
+				{
+					message = "Please enter a first name";
+					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+				}
+				else if(lastName.getText().toString().equals(""))
+				{
+					message = "Please enter a last name";
+					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+				}
+				else if(email.getText().toString().equals(""))
+				{
+					message = "Please enter an email";
+					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+				}
+				else if(groupSpinner.getSelectedItem().toString().equals("Choose a group/phyla")){
+					message = "Please select a group/phyla";
+					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+				}
+				else
+				{
+
+					//Store all of the information
+					Entry.setFirstName(firstName.getText().toString());
+					Entry.setLastName(lastName.getText().toString());
+					Entry.setEmail(email.getText().toString());
+					Entry.setAffiliation(affiliationSpinner.getSelectedItem().toString());
+					Entry.setGroup(groupSpinner.getSelectedItem().toString());
+					Entry.setCommonName(commonName.getText().toString());
+					Entry.setSpecies(species.getText().toString());
+					Entry.setAmount(amount.getText().toString());
+					Entry.setBehavorialDescription(behavorialDescription.getText().toString());
+					Entry.setCounty(countySpinner.getSelectedItem().toString());
+					Entry.setObservationalTechnique(observationalSpinner.getSelectedItem().toString());
+					Entry.setObservationalTechniqueOther(observationalTechniqueOther.getText().toString());
+					Entry.setEcosystemType(ecosystem.getText().toString());
+					Entry.setAdditionalInformation(additionalInformation.getText().toString());
+					Entry.setPrivacySetting(privacySpinner.getSelectedItem().toString());
+
+					// if the entry is inserted correctly, the method returns a 1
+					if(db.insertEntry() == 1)
+					{
+						message = "Success";
+						Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+					}
+					else
+					{
+						message = "Failure";
+						Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+					}
+
+				}
+
+			}
+
+		});
+		
+		
 
 		// Initialize image/video Uri
 		oldImageFileUri = null;
@@ -699,6 +835,10 @@ public class NewSubmission extends Fragment implements LocationListener {
 		latitude = location.getLatitude();
 		longitude = location.getLongitude();
 		altitude = location.getAltitude();
+		
+		Entry.setLongitude(longitude+"");
+		Entry.setLatitude(latitude+"");
+		Entry.setAltitude(altitude+"");
 
 		// Set TextField with gathered location
 		altitudeEditText.setText(arg0.getAltitude() + "");
@@ -783,17 +923,22 @@ public class NewSubmission extends Fragment implements LocationListener {
 				JSONObject rainObj = getObject("rain", jObj);
 
 				if (rainObj.has("1h")) {
-					Entry.setPrecipitationMeasure("1h");
+					Entry.setPrecipitationMeasure("1 hour");
 					Entry.setPrecipitation(getDouble("1h", rainObj) + "");
 				} else if (rainObj.has("2h")) {
-					Entry.setPrecipitationMeasure("2h");
+					Entry.setPrecipitationMeasure("2 hours");
 					Entry.setPrecipitation(getDouble("2h", rainObj) + "");
 				} else if (rainObj.has("3h")) {
-					Entry.setPrecipitationMeasure("3h");
+					Entry.setPrecipitationMeasure("3 hours");
 					Entry.setPrecipitation(getDouble("3h", rainObj)+"");
 				}
 
+
 			} catch (JSONException e) {
+				//If it is not raining, no rain measure will be returned. So if we are in this catch block,
+				//we will just set a default value for the rain
+				Entry.setPrecipitationMeasure("3 hours");
+				Entry.setPrecipitation("0");
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -806,20 +951,11 @@ public class NewSubmission extends Fragment implements LocationListener {
 			return subObj;
 		}
 
-		private String getString(String tagName, JSONObject jObj)
-				throws JSONException {
-			return jObj.getString(tagName);
-		}
-
 		private double getDouble(String tagName, JSONObject jObj)
 				throws JSONException {
 			return jObj.getDouble(tagName);
 		}
 
-		private int getInt(String tagName, JSONObject jObj)
-				throws JSONException {
-			return jObj.getInt(tagName);
-		}
 	}
 
 }

@@ -1,11 +1,25 @@
-package com.example.uwoshkoshbestiary;
+package database;
 
 public class Entry {
 	
 	private static String photoPath;
 	private static String videoPath;
 	private static String audioPath;
+	private static String timePhoto;
+	private static String group;
 	
+	public static String getGroup() {
+		return group;
+	}
+	public static void setGroup(String group) {
+		Entry.group = group;
+	}
+	public static String getTimePhoto() {
+		return timePhoto;
+	}
+	public static void setTimePhoto(String timePhoto) {
+		Entry.timePhoto = timePhoto;
+	}
 	public static String getPhotoPath() {
 		return photoPath;
 	}
