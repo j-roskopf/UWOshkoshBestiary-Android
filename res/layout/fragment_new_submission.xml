@@ -151,7 +151,7 @@
               android:inputType="textMultiLine" />
           
           
-           <Spinner
+           <Spinner 
                android:id="@+id/countySpinner"
                android:layout_width="fill_parent"
                android:layout_height="wrap_content"
