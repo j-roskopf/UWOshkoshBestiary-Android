@@ -91,4 +91,12 @@
         android:layout_below="@+id/precipitation"
         android:text="0" />
 
+    <Button
+        android:id="@+id/manual"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="Collect Weather Manually" />
+
 </RelativeLayout>

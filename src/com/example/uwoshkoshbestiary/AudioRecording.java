@@ -44,11 +44,14 @@ public class AudioRecording extends Activity {
 	//Used to store the filename for the recorded audio
 	String pathForAudioFile;
 	String oldPathForAudioFile;
+	
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_audio_recording);
+
 
 		setButtonHandlers();
 		enableButtons(false);
@@ -59,8 +62,16 @@ public class AudioRecording extends Activity {
 		//New media player
 		mp = new MediaPlayer();
 		
+		if(NewSubmission.e.getAudioPath() != null)
+		{
+			pathForAudioFile = NewSubmission.e.getAudioPath();
+		}
+		else
+		{
+			pathForAudioFile = null;
+
+		}
 		//Set null file paths
-		pathForAudioFile = null;
 		oldPathForAudioFile = null;
 	}
 
@@ -306,7 +317,7 @@ public class AudioRecording extends Activity {
 				break;
 			}
 			case R.id.btnSave: {
-				Entry.setAudioPath(pathForAudioFile);
+				NewSubmission.e.setAudioPath(pathForAudioFile);
 				finish();
 
 				break;

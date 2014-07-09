@@ -1,205 +1,228 @@
 package database;
 
-public class Entry {
+import java.io.Serializable;
+
+public class Entry implements Serializable {
 	
-	private static String photoPath;
-	private static String videoPath;
-	private static String audioPath;
-	private static String timePhoto;
-	private static String group;
+	private  String photoPath;
+	private  String videoPath;
+	private  String audioPath;
+	private  String timePhoto;
+	private String ID;
+	public String getID() {
+		return ID;
+	}
+	public void setID(String iD) {
+		ID = iD;
+	}
+	private  String group;
+	private  String photoTime;
+	public  String getPhotoTime() {
+		return photoTime;
+	}
+	public  void setPhotoTime(String photoTime) {
+		this.photoTime = photoTime;
+	}
+	public  String getVideoTime() {
+		return videoTime;
+	}
+	public  void setVideoTime(String videoTime) {
+		this.videoTime = videoTime;
+	}
+	private  String videoTime;
 	
-	public static String getGroup() {
+	public  String getGroup() {
 		return group;
 	}
-	public static void setGroup(String group) {
-		Entry.group = group;
+	public  void setGroup(String group) {
+		this.group = group;
 	}
-	public static String getTimePhoto() {
+	public  String getTimePhoto() {
 		return timePhoto;
 	}
-	public static void setTimePhoto(String timePhoto) {
-		Entry.timePhoto = timePhoto;
+	public  void setTimePhoto(String timePhoto) {
+		this.timePhoto = timePhoto;
 	}
-	public static String getPhotoPath() {
+	public  String getPhotoPath() {
 		return photoPath;
 	}
-	public static void setPhotoPath(String photoPath) {
-		Entry.photoPath = photoPath;
+	public  void setPhotoPath(String photoPath) {
+		this.photoPath = photoPath;
 	}
-	public static String getVideoPath() {
+	public  String getVideoPath() {
 		return videoPath;
 	}
-	public static void setVideoPath(String videoPath) {
-		Entry.videoPath = videoPath;
+	public  void setVideoPath(String videoPath) {
+		this.videoPath = videoPath;
 	}
-	public static String getAudioPath() {
+	public  String getAudioPath() {
 		return audioPath;
 	}
-	public static void setAudioPath(String audioPath) {
-		Entry.audioPath = audioPath;
+	public  void setAudioPath(String audioPath) {
+		this.audioPath = audioPath;
 	}
-	public static String getFirstName() {
+	public  String getFirstName() {
 		return firstName;
 	}
-	public static void setFirstName(String firstName) {
-		Entry.firstName = firstName;
+	public  void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
-	public static String getLastName() {
+	public  String getLastName() {
 		return lastName;
 	}
-	public static void setLastName(String lastName) {
-		Entry.lastName = lastName;
+	public  void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
-	public static String getEmail() {
+	public  String getEmail() {
 		return email;
 	}
-	public static void setEmail(String email) {
-		Entry.email = email;
+	public  void setEmail(String email) {
+		this.email = email;
 	}
-	public static String getAffiliation() {
+	public  String getAffiliation() {
 		return affiliation;
 	}
-	public static void setAffiliation(String affiliation) {
-		Entry.affiliation = affiliation;
+	public  void setAffiliation(String affiliation) {
+		this.affiliation = affiliation;
 	}
-	public static String getCommonName() {
+	public  String getCommonName() {
 		return commonName;
 	}
-	public static void setCommonName(String commonName) {
-		Entry.commonName = commonName;
+	public  void setCommonName(String commonName) {
+		this.commonName = commonName;
 	}
-	public static String getSpecies() {
+	public  String getSpecies() {
 		return species;
 	}
-	public static void setSpecies(String species) {
-		Entry.species = species;
+	public  void setSpecies(String species) {
+		this.species = species;
 	}
-	public static String getAmount() {
+	public  String getAmount() {
 		return amount;
 	}
-	public static void setAmount(String amount) {
-		Entry.amount = amount;
+	public  void setAmount(String amount) {
+		this.amount = amount;
 	}
-	public static String getBehavorialDescription() {
+	public  String getBehavorialDescription() {
 		return behavorialDescription;
 	}
-	public static void setBehavorialDescription(String behavorialDescription) {
-		Entry.behavorialDescription = behavorialDescription;
+	public  void setBehavorialDescription(String behavorialDescription) {
+		this.behavorialDescription = behavorialDescription;
 	}
-	public static String getCounty() {
+	public  String getCounty() {
 		return county;
 	}
-	public static void setCounty(String county) {
-		Entry.county = county;
+	public  void setCounty(String county) {
+		this.county = county;
 	}
-	public static String getObservationalTechnique() {
+	public  String getObservationalTechnique() {
 		return observationalTechnique;
 	}
-	public static void setObservationalTechnique(String observationalTechnique) {
-		Entry.observationalTechnique = observationalTechnique;
+	public  void setObservationalTechnique(String observationalTechnique) {
+		this.observationalTechnique = observationalTechnique;
 	}
-	public static String getObservationalTechniqueOther() {
+	public  String getObservationalTechniqueOther() {
 		return observationalTechniqueOther;
 	}
-	public static void setObservationalTechniqueOther(
+	public  void setObservationalTechniqueOther(
 			String observationalTechniqueOther) {
-		Entry.observationalTechniqueOther = observationalTechniqueOther;
+		this.observationalTechniqueOther = observationalTechniqueOther;
 	}
-	public static String getEcosystemType() {
+	public  String getEcosystemType() {
 		return ecosystemType;
 	}
-	public static void setEcosystemType(String ecosystemType) {
-		Entry.ecosystemType = ecosystemType;
+	public  void setEcosystemType(String ecosystemType) {
+		this.ecosystemType = ecosystemType;
 	}
-	public static String getAdditionalInformation() {
+	public  String getAdditionalInformation() {
 		return additionalInformation;
 	}
-	public static void setAdditionalInformation(String additionalInformation) {
-		Entry.additionalInformation = additionalInformation;
+	public  void setAdditionalInformation(String additionalInformation) {
+		this.additionalInformation = additionalInformation;
 	}
-	public static String getLatitude() {
+	public  String getLatitude() {
 		return latitude;
 	}
-	public static void setLatitude(String latitude) {
-		Entry.latitude = latitude;
+	public  void setLatitude(String latitude) {
+		this.latitude = latitude;
 	}
-	public static String getLongitude() {
+	public  String getLongitude() {
 		return longitude;
 	}
-	public static void setLongitude(String longitude) {
-		Entry.longitude = longitude;
+	public  void setLongitude(String longitude) {
+		this.longitude = longitude;
 	}
-	public static String getAltitude() {
+	public  String getAltitude() {
 		return altitude;
 	}
-	public static void setAltitude(String altitude) {
-		Entry.altitude = altitude;
+	public  void setAltitude(String altitude) {
+		this.altitude = altitude;
 	}
-	public static String getPrivacySetting() {
+	public  String getPrivacySetting() {
 		return privacySetting;
 	}
-	public static void setPrivacySetting(String privacySetting) {
-		Entry.privacySetting = privacySetting;
+	public  void setPrivacySetting(String privacySetting) {
+		this.privacySetting = privacySetting;
 	}
-	public static String getTemperature() {
+	public  String getTemperature() {
 		return temperature;
 	}
-	public static void setTemperature(String temperature) {
-		Entry.temperature = temperature;
+	public  void setTemperature(String temperature) {
+		this.temperature = temperature;
 	}
-	public static String getWindSpeed() {
+	public  String getWindSpeed() {
 		return windSpeed;
 	}
-	public static void setWindSpeed(String windSpeed) {
-		Entry.windSpeed = windSpeed;
+	public  void setWindSpeed(String windSpeed) {
+		this.windSpeed = windSpeed;
 	}
-	public static String getWindDirection() {
+	public  String getWindDirection() {
 		return windDirection;
 	}
-	public static void setWindDirection(String windDirection) {
-		Entry.windDirection = windDirection;
+	public  void setWindDirection(String windDirection) {
+		this.windDirection = windDirection;
 	}
-	public static String getPressure() {
+	public  String getPressure() {
 		return pressure;
 	}
-	public static void setPressure(String pressure) {
-		Entry.pressure = pressure;
+	public  void setPressure(String pressure) {
+		this.pressure = pressure;
 	}
-	public static String getPrecipitation() {
+	public  String getPrecipitation() {
 		return precipitation;
 	}
-	public static void setPrecipitation(String precipitation) {
-		Entry.precipitation = precipitation;
+	public  void setPrecipitation(String precipitation) {
+		this.precipitation = precipitation;
 	}
-	private static String firstName;
-	private static String lastName;
-	private static String email;
-	private static String affiliation;
-	private static String commonName;
-	private static String species;
-	private static String amount;
-	private static String behavorialDescription;
-	private static String county;
-	private static String observationalTechnique;
-	private static String observationalTechniqueOther;
-	private static String ecosystemType;
-	private static String additionalInformation;
-	private static String latitude;
-	private static String longitude;
-	private static String altitude;
-	private static String privacySetting;
-	private static String temperature;
-	private static String windSpeed;
-	private static String windDirection;
-	private static String pressure;
-	private static String precipitation;
-	private static String precipitationMeasure;
+	private  String firstName;
+	private  String lastName;
+	private  String email;
+	private  String affiliation;
+	private  String commonName;
+	private  String species;
+	private  String amount;
+	private  String behavorialDescription;
+	private  String county;
+	private  String observationalTechnique;
+	private  String observationalTechniqueOther;
+	private  String ecosystemType;
+	private  String additionalInformation;
+	private  String latitude;
+	private  String longitude;
+	private  String altitude;
+	private  String privacySetting;
+	private  String temperature;
+	private  String windSpeed;
+	private  String windDirection;
+	private  String pressure;
+	private  String precipitation;
+	private  String precipitationMeasure;
 
-	public static String getPrecipitationMeasure() {
+	public  String getPrecipitationMeasure() {
 		return precipitationMeasure;
 	}
-	public static void setPrecipitationMeasure(String precipitationMeasure) {
-		Entry.precipitationMeasure = precipitationMeasure;
+	public  void setPrecipitationMeasure(String precipitationMeasure) {
+		this.precipitationMeasure = precipitationMeasure;
 	}
 	
 

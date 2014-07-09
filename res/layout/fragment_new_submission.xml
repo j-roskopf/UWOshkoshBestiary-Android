@@ -55,7 +55,7 @@
             android:id="@+id/capturedPicture"
             android:layout_width="match_parent"
             android:layout_height="127dp"
-            android:src="@android:drawable/ic_menu_mylocation" />
+            android:src="@android:drawable/ic_menu_gallery" />
 
         <Button
             android:id="@+id/addAudio"

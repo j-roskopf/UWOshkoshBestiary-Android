@@ -134,11 +134,13 @@ public class MainActivity extends ActionBarActivity implements
 	            return new NewSubmission();
 	        case 1:
 	        	return new ExistingSubmission();
+	        default:
+	        	return new NewSubmission();
 
 	        }
 	        
-	 
-	        return null;
+	        
+	        
 		}
 
 		@Override
