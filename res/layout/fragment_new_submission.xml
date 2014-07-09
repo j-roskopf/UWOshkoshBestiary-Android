@@ -139,7 +139,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:ems="10"
-              android:hint="Amount of animal seen"
+              android:hint="Number of animal seen"
               android:inputType="numberSigned" />
 
           <EditText

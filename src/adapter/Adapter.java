@@ -109,8 +109,8 @@ public class Adapter extends BaseAdapter {
 
 		HashMap<String, String> e = new HashMap<String, String>();
 		e = data.get(position);
-		header.setText(e.get("firstName"));
-		secondary.setText(e.get("email"));
+		header.setText(e.get("currentTime"));
+		secondary.setText(e.get("groupOrPhyla"));
 		
 		if (getBitmapFromMemCache(Integer.valueOf(position)+"") != null) {
 			imageView.setImageBitmap(getBitmapFromMemCache(Integer.valueOf(position)+""));

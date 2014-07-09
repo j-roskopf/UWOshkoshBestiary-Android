@@ -12,37 +12,38 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-	public static final String ID = "id";
-	public static final String TABLE_NAME = "entry";
-	public static final String PHOTO = "photo";
-	public static final String VIDEO = "video";
-	public static final String AUDIO = "audio";
-	public static final String FIRST_NAME = "firstName";
-	public static final String LAST_NAME = "lastName";
-	public static final String EMAIL = "email";
-	public static final String AFFILIATION = "affiliation";
-	public static final String GROUP = "groupOrPhyla";
-	public static final String COMMON_NAME = "commonName";
-	public static final String SPECIES = "species";
-	public static final String AMOUNT = "amount";
-	public static final String BEHAVORIAL_DESCRIPTION = "behavorialDescription";
-	public static final String COUNTY = "county";
-	public static final String OBSERVATIONAL_TECHNIQUE = "observationalTechnique";
-	public static final String OBSERVATIONAL_TECHNIQUE_OTHER = "observationalTechniqueOther";
-	public static final String ECOSYSTEM_TYPE = "ecosystemType";
-	public static final String ADDITIONAL_INFORMATION = "additionalInformation";
-	public static final String LATITUDE = "latitude";
-	public static final String LONGITUDE = "longitude";
-	public static final String ALTITUDE = "altitude";
-	public static final String PRIVACY_SETTING = "privacySetting";
-	public static final String TEMPERATURE = "temperature";
-	public static final String WIND_SPEED = "windSpeed";
-	public static final String WIND_DIRECTION = "windDirection";
-	public static final String PRESSURE = "pressure";
-	public static final String PRECIPITATION = "precipitation";
-	public static final String PRECIPITATION_MEASURE = "precipitationMeasure";
-	public static final String TIME_PHOTO = "photoTime";
-	public static final String TIME_VIDEO = "videoTime";
+	private static final String ID = "id";
+	private static final String TABLE_NAME = "entry";
+	private static final String PHOTO = "photo";
+	private static final String VIDEO = "video";
+	private static final String AUDIO = "audio";
+	private static final String FIRST_NAME = "firstName";
+	private static final String LAST_NAME = "lastName";
+	private static final String EMAIL = "email";
+	private static final String AFFILIATION = "affiliation";
+	private static final String GROUP = "groupOrPhyla";
+	private static final String COMMON_NAME = "commonName";
+	private static final String SPECIES = "species";
+	private static final String AMOUNT = "amount";
+	private static final String BEHAVORIAL_DESCRIPTION = "behavorialDescription";
+	private static final String COUNTY = "county";
+	private static final String OBSERVATIONAL_TECHNIQUE = "observationalTechnique";
+	private static final String OBSERVATIONAL_TECHNIQUE_OTHER = "observationalTechniqueOther";
+	private static final String ECOSYSTEM_TYPE = "ecosystemType";
+	private static final String ADDITIONAL_INFORMATION = "additionalInformation";
+	private static final String LATITUDE = "latitude";
+	private static final String LONGITUDE = "longitude";
+	private static final String ALTITUDE = "altitude";
+	private static final String PRIVACY_SETTING = "privacySetting";
+	private static final String TEMPERATURE = "temperature";
+	private static final String WIND_SPEED = "windSpeed";
+	private static final String WIND_DIRECTION = "windDirection";
+	private static final String PRESSURE = "pressure";
+	private static final String PRECIPITATION = "precipitation";
+	private static final String PRECIPITATION_MEASURE = "precipitationMeasure";
+	private static final String TIME_PHOTO = "photoTime";
+	private static final String TIME_VIDEO = "videoTime";
+	private static final String CURRENT_TIME = "currentTime";
 
 	private static final String DATABASE_NAME = "bestiary.db";
 	private static final int DATABASE_VERSION = 1;
@@ -63,7 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			+ WIND_SPEED + " TEXT, " + WIND_DIRECTION + " TEXT, " + PRESSURE
 			+ " TEXT, " + PRECIPITATION + " TEXT, " + PRECIPITATION_MEASURE
 			+ " TEXT, " + TIME_PHOTO + " TEXT " + ", " + TIME_VIDEO + " TEXT "
-			+ ");";
+			+ ", " + CURRENT_TIME + " TEXT" +");";
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -116,8 +117,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(PRESSURE, e.getPressure());
 		values.put(PRECIPITATION, e.getPrecipitation());
 		values.put(PRECIPITATION_MEASURE, e.getPrecipitationMeasure());
-		values.put(TIME_PHOTO, e.getTimePhoto());
-
+		values.put(TIME_PHOTO, e.getPhotoTime());
+		values.put(TIME_VIDEO, e.getVideoTime());
+		values.put(CURRENT_TIME,e.getCurrentTime());
 		try {
 			db.insert(TABLE_NAME, null, values);
 		} catch (SQLiteException e1) {
@@ -163,7 +165,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(PRESSURE, e.getPressure());
 		values.put(PRECIPITATION, e.getPrecipitation());
 		values.put(PRECIPITATION_MEASURE, e.getPrecipitationMeasure());
-		values.put(TIME_PHOTO, e.getTimePhoto());
+		values.put(TIME_PHOTO, e.getPhotoTime());
+		values.put(TIME_VIDEO, e.getVideoTime());
+		values.put(CURRENT_TIME,e.getCurrentTime());
+
 
 		try {
 			db.update(TABLE_NAME, values, "id " + "= " + e.getID(),null);
@@ -216,6 +221,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			e.setPrecipitationMeasure(res.getString(res.getColumnIndex(PRECIPITATION_MEASURE)));
 			e.setPhotoTime(res.getString(res.getColumnIndex(TIME_PHOTO)));
 			e.setVideoTime(res.getString(res.getColumnIndex(TIME_VIDEO)));
+			e.setCurrentTime(res.getString(res.getColumnIndex(CURRENT_TIME)));
 			
 			entries.add(e);
 			res.moveToNext();

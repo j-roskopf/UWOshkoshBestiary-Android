@@ -3,227 +3,289 @@ package database;
 import java.io.Serializable;
 
 public class Entry implements Serializable {
-	
-	private  String photoPath;
-	private  String videoPath;
-	private  String audioPath;
-	private  String timePhoto;
+
+	private String photoPath;
+	private String videoPath;
+	private String audioPath;
+	private String currentTime;
 	private String ID;
+
 	public String getID() {
 		return ID;
 	}
+
 	public void setID(String iD) {
 		ID = iD;
 	}
-	private  String group;
-	private  String photoTime;
-	public  String getPhotoTime() {
+
+	private String group;
+	private String photoTime;
+
+	public String getPhotoTime() {
 		return photoTime;
 	}
-	public  void setPhotoTime(String photoTime) {
+
+	public void setPhotoTime(String photoTime) {
 		this.photoTime = photoTime;
 	}
-	public  String getVideoTime() {
+
+	public String getVideoTime() {
 		return videoTime;
 	}
-	public  void setVideoTime(String videoTime) {
+
+	public void setVideoTime(String videoTime) {
 		this.videoTime = videoTime;
 	}
-	private  String videoTime;
-	
-	public  String getGroup() {
+
+	private String videoTime;
+
+	public String getGroup() {
 		return group;
 	}
-	public  void setGroup(String group) {
+
+	public void setGroup(String group) {
 		this.group = group;
 	}
-	public  String getTimePhoto() {
-		return timePhoto;
-	}
-	public  void setTimePhoto(String timePhoto) {
-		this.timePhoto = timePhoto;
-	}
-	public  String getPhotoPath() {
+
+	public String getPhotoPath() {
 		return photoPath;
 	}
-	public  void setPhotoPath(String photoPath) {
+
+	public void setPhotoPath(String photoPath) {
 		this.photoPath = photoPath;
 	}
-	public  String getVideoPath() {
+
+	public String getVideoPath() {
 		return videoPath;
 	}
-	public  void setVideoPath(String videoPath) {
+
+	public void setVideoPath(String videoPath) {
 		this.videoPath = videoPath;
 	}
-	public  String getAudioPath() {
+
+	public String getAudioPath() {
 		return audioPath;
 	}
-	public  void setAudioPath(String audioPath) {
+
+	public void setAudioPath(String audioPath) {
 		this.audioPath = audioPath;
 	}
-	public  String getFirstName() {
+
+	public String getFirstName() {
 		return firstName;
 	}
-	public  void setFirstName(String firstName) {
+
+	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
-	public  String getLastName() {
+
+	public String getLastName() {
 		return lastName;
 	}
-	public  void setLastName(String lastName) {
+
+	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	public  String getEmail() {
+
+	public String getEmail() {
 		return email;
 	}
-	public  void setEmail(String email) {
+
+	public void setEmail(String email) {
 		this.email = email;
 	}
-	public  String getAffiliation() {
+
+	public String getAffiliation() {
 		return affiliation;
 	}
-	public  void setAffiliation(String affiliation) {
+
+	public void setAffiliation(String affiliation) {
 		this.affiliation = affiliation;
 	}
-	public  String getCommonName() {
+
+	public String getCommonName() {
 		return commonName;
 	}
-	public  void setCommonName(String commonName) {
+
+	public void setCommonName(String commonName) {
 		this.commonName = commonName;
 	}
-	public  String getSpecies() {
+
+	public String getSpecies() {
 		return species;
 	}
-	public  void setSpecies(String species) {
+
+	public void setSpecies(String species) {
 		this.species = species;
 	}
-	public  String getAmount() {
+
+	public String getAmount() {
 		return amount;
 	}
-	public  void setAmount(String amount) {
+
+	public void setAmount(String amount) {
 		this.amount = amount;
 	}
-	public  String getBehavorialDescription() {
+
+	public String getBehavorialDescription() {
 		return behavorialDescription;
 	}
-	public  void setBehavorialDescription(String behavorialDescription) {
+
+	public void setBehavorialDescription(String behavorialDescription) {
 		this.behavorialDescription = behavorialDescription;
 	}
-	public  String getCounty() {
+
+	public String getCounty() {
 		return county;
 	}
-	public  void setCounty(String county) {
+
+	public void setCounty(String county) {
 		this.county = county;
 	}
-	public  String getObservationalTechnique() {
+
+	public String getObservationalTechnique() {
 		return observationalTechnique;
 	}
-	public  void setObservationalTechnique(String observationalTechnique) {
+
+	public void setObservationalTechnique(String observationalTechnique) {
 		this.observationalTechnique = observationalTechnique;
 	}
-	public  String getObservationalTechniqueOther() {
+
+	public String getObservationalTechniqueOther() {
 		return observationalTechniqueOther;
 	}
-	public  void setObservationalTechniqueOther(
+
+	public void setObservationalTechniqueOther(
 			String observationalTechniqueOther) {
 		this.observationalTechniqueOther = observationalTechniqueOther;
 	}
-	public  String getEcosystemType() {
+
+	public String getEcosystemType() {
 		return ecosystemType;
 	}
-	public  void setEcosystemType(String ecosystemType) {
+
+	public void setEcosystemType(String ecosystemType) {
 		this.ecosystemType = ecosystemType;
 	}
-	public  String getAdditionalInformation() {
+
+	public String getAdditionalInformation() {
 		return additionalInformation;
 	}
-	public  void setAdditionalInformation(String additionalInformation) {
+
+	public void setAdditionalInformation(String additionalInformation) {
 		this.additionalInformation = additionalInformation;
 	}
-	public  String getLatitude() {
+
+	public String getLatitude() {
 		return latitude;
 	}
-	public  void setLatitude(String latitude) {
+
+	public void setLatitude(String latitude) {
 		this.latitude = latitude;
 	}
-	public  String getLongitude() {
+
+	public String getLongitude() {
 		return longitude;
 	}
-	public  void setLongitude(String longitude) {
+
+	public void setLongitude(String longitude) {
 		this.longitude = longitude;
 	}
-	public  String getAltitude() {
+
+	public String getAltitude() {
 		return altitude;
 	}
-	public  void setAltitude(String altitude) {
+
+	public void setAltitude(String altitude) {
 		this.altitude = altitude;
 	}
-	public  String getPrivacySetting() {
+
+	public String getPrivacySetting() {
 		return privacySetting;
 	}
-	public  void setPrivacySetting(String privacySetting) {
+
+	public void setPrivacySetting(String privacySetting) {
 		this.privacySetting = privacySetting;
 	}
-	public  String getTemperature() {
+
+	public String getTemperature() {
 		return temperature;
 	}
-	public  void setTemperature(String temperature) {
+
+	public void setTemperature(String temperature) {
 		this.temperature = temperature;
 	}
-	public  String getWindSpeed() {
+
+	public String getWindSpeed() {
 		return windSpeed;
 	}
-	public  void setWindSpeed(String windSpeed) {
+
+	public void setWindSpeed(String windSpeed) {
 		this.windSpeed = windSpeed;
 	}
-	public  String getWindDirection() {
+
+	public String getWindDirection() {
 		return windDirection;
 	}
-	public  void setWindDirection(String windDirection) {
+
+	public void setWindDirection(String windDirection) {
 		this.windDirection = windDirection;
 	}
-	public  String getPressure() {
+
+	public String getPressure() {
 		return pressure;
 	}
-	public  void setPressure(String pressure) {
+
+	public void setPressure(String pressure) {
 		this.pressure = pressure;
 	}
-	public  String getPrecipitation() {
+
+	public String getPrecipitation() {
 		return precipitation;
 	}
-	public  void setPrecipitation(String precipitation) {
+
+	public void setPrecipitation(String precipitation) {
 		this.precipitation = precipitation;
 	}
-	private  String firstName;
-	private  String lastName;
-	private  String email;
-	private  String affiliation;
-	private  String commonName;
-	private  String species;
-	private  String amount;
-	private  String behavorialDescription;
-	private  String county;
-	private  String observationalTechnique;
-	private  String observationalTechniqueOther;
-	private  String ecosystemType;
-	private  String additionalInformation;
-	private  String latitude;
-	private  String longitude;
-	private  String altitude;
-	private  String privacySetting;
-	private  String temperature;
-	private  String windSpeed;
-	private  String windDirection;
-	private  String pressure;
-	private  String precipitation;
-	private  String precipitationMeasure;
 
-	public  String getPrecipitationMeasure() {
+	private String firstName;
+	private String lastName;
+	private String email;
+	private String affiliation;
+	private String commonName;
+	private String species;
+	private String amount;
+	private String behavorialDescription;
+	private String county;
+	private String observationalTechnique;
+	private String observationalTechniqueOther;
+	private String ecosystemType;
+	private String additionalInformation;
+	private String latitude;
+	private String longitude;
+	private String altitude;
+	private String privacySetting;
+	private String temperature;
+	private String windSpeed;
+	private String windDirection;
+	private String pressure;
+	private String precipitation;
+	private String precipitationMeasure;
+
+	public String getPrecipitationMeasure() {
 		return precipitationMeasure;
 	}
-	public  void setPrecipitationMeasure(String precipitationMeasure) {
+
+	public void setPrecipitationMeasure(String precipitationMeasure) {
 		this.precipitationMeasure = precipitationMeasure;
 	}
-	
+
+	public String getCurrentTime() {
+		return currentTime;
+	}
+
+	public void setCurrentTime(String currentTime) {
+		this.currentTime = currentTime;
+	}
 
 }

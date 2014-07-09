@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,11 +17,14 @@ import database.DatabaseHelper;
 import database.Entry;
 
 import android.support.v4.app.Fragment;
+import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -58,6 +63,9 @@ import android.os.Build;
 import android.provider.MediaStore;
 
 public class NewSubmission extends Fragment implements LocationListener {
+	
+	//Shared preferences
+	SharedPreferences prefs;
 
 	// UI References
 
@@ -121,8 +129,9 @@ public class NewSubmission extends Fragment implements LocationListener {
 
 	// Used to store if the location was successfully retrieved.
 	static boolean retrievedLocation;
-	
-	//Used to manually switch to the new submission tab when the user clicks on an entry
+
+	// Used to manually switch to the new submission tab when the user clicks on
+	// an entry
 	android.app.ActionBar ab;
 
 	// Used to determine weather direction from degrees
@@ -169,117 +178,113 @@ public class NewSubmission extends Fragment implements LocationListener {
 		if (isVisibleToUser && comingFromExistingSubmission) {
 
 			// set the check box
-			if(cb != null)
-			{
-				cb.setChecked(isVisibleToUser);
-				sv.setVisibility(1);
-				sv.fullScroll(ScrollView.FOCUS_UP);
 
-				// Depending on the orientation of the phone when the image was
-				// taken, the image can be displayed
-				// sideways in the image view. This will rotate the image correctly
-				Matrix matrix = new Matrix();
-				try {
-					if (e.getPhotoPath() != null) {
-						ExifInterface exif = new ExifInterface(e.getPhotoPath());
-						int orientation = exif.getAttributeInt(
-								ExifInterface.TAG_ORIENTATION, 1);
+			cb.setChecked(isVisibleToUser);
+			sv.setVisibility(1);
+			sv.fullScroll(ScrollView.FOCUS_UP);
 
-						if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
-							matrix.postRotate(90);
-						} else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
-							matrix.postRotate(180);
-						} else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
-							matrix.postRotate(270);
-						}
-						// Setting the image stuff
-						BitmapFactory.Options options = new BitmapFactory.Options();
-						// downsizing image as it throws OutOfMemory Exception for
-						// larger
-						// images
-						options.inSampleSize = 8;
-						Bitmap bitmap = BitmapFactory.decodeFile(e.getPhotoPath(),
-								options);
+			// Depending on the orientation of the phone when the image was
+			// taken, the image can be displayed
+			// sideways in the image view. This will rotate the image correctly
+			Matrix matrix = new Matrix();
+			try {
+				if (e.getPhotoPath() != null) {
+					ExifInterface exif = new ExifInterface(e.getPhotoPath());
+					int orientation = exif.getAttributeInt(
+							ExifInterface.TAG_ORIENTATION, 1);
 
-						bitmap = Bitmap
-								.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-										bitmap.getHeight(), matrix, true); // rotating
-																			// bitmap
-
-						capturedPicture.setImageBitmap(bitmap);
-					} else {
-						capturedPicture.setImageDrawable(getResources()
-								.getDrawable(android.R.drawable.ic_menu_gallery));
+					if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+						matrix.postRotate(90);
+					} else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+						matrix.postRotate(180);
+					} else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+						matrix.postRotate(270);
 					}
+					// Setting the image stuff
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					// downsizing image as it throws OutOfMemory Exception for
+					// larger
+					// images
+					options.inSampleSize = 8;
+					Bitmap bitmap = BitmapFactory.decodeFile(e.getPhotoPath(),
+							options);
 
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					bitmap = Bitmap
+							.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+									bitmap.getHeight(), matrix, true); // rotating
+																		// bitmap
+
+					capturedPicture.setImageBitmap(bitmap);
+				} else {
+					capturedPicture.setImageDrawable(getResources()
+							.getDrawable(android.R.drawable.ic_menu_gallery));
 				}
 
-				// Setting the video stuff
-				if (e.getVideoPath() != null) {
-					videoFileUri = Uri.parse(e.getVideoPath());
-				}
-
-				// No need to set anything with the audio
-
-				firstName.setText(e.getFirstName());
-				lastName.setText(e.getLastName());
-				email.setText(e.getEmail());
-
-				// set affiliation spinner
-				ArrayAdapter adapter = (ArrayAdapter) affiliationSpinner
-						.getAdapter(); // cast to an ArrayAdapter
-				int spinnerPosition = adapter.getPosition(e.getAffiliation());
-				// set the default according to value
-				affiliationSpinner.setSelection(spinnerPosition);
-
-				// set group spinner
-				adapter = (ArrayAdapter) groupSpinner.getAdapter(); // cast to an
-																	// ArrayAdapter
-				spinnerPosition = adapter.getPosition(e.getGroup());
-				// set the default according to value
-				groupSpinner.setSelection(spinnerPosition);
-
-				commonName.setText(e.getCommonName());
-				species.setText(e.getSpecies());
-				amount.setText(e.getAmount());
-				behavorialDescription.setText(e.getBehavorialDescription());
-
-				// set county spinner
-				adapter = (ArrayAdapter) countySpinner.getAdapter(); // cast to an
-																		// ArrayAdapter
-				spinnerPosition = adapter.getPosition(e.getCounty());
-				// set the default according to value
-				countySpinner.setSelection(spinnerPosition);
-
-				// set observational technique spinner
-				adapter = (ArrayAdapter) observationalSpinner.getAdapter(); // cast
-																			// to an
-																			// ArrayAdapter
-				spinnerPosition = adapter
-						.getPosition(e.getObservationalTechnique());
-				// set the default according to value
-				observationalSpinner.setSelection(spinnerPosition);
-
-				observationalTechniqueOther.setText(e
-						.getObservationalTechniqueOther());
-				ecosystem.setText(e.getEcosystemType());
-				additionalInformation.setText(e.getAdditionalInformation());
-
-				if (e.getLatitude() != null) {
-					latitudeEditText.setText(e.getLatitude());
-				}
-				if (e.getLongitude() != null) {
-					longitudeEditText.setText(e.getLongitude());
-				}
-				if (e.getAltitude() != null) {
-					altitudeEditText.setText(e.getAltitude());
-				}
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-			
 
+			// Setting the video stuff
+			if (e.getVideoPath() != null) {
+				videoFileUri = Uri.parse(e.getVideoPath());
+			}
+
+			// No need to set anything with the audio
+
+			firstName.setText(e.getFirstName());
+			lastName.setText(e.getLastName());
+			email.setText(e.getEmail());
+
+			// set affiliation spinner
+			ArrayAdapter adapter = (ArrayAdapter) affiliationSpinner
+					.getAdapter(); // cast to an ArrayAdapter
+			int spinnerPosition = adapter.getPosition(e.getAffiliation());
+			// set the default according to value
+			affiliationSpinner.setSelection(spinnerPosition);
+
+			// set group spinner
+			adapter = (ArrayAdapter) groupSpinner.getAdapter(); // cast to an
+																// ArrayAdapter
+			spinnerPosition = adapter.getPosition(e.getGroup());
+			// set the default according to value
+			groupSpinner.setSelection(spinnerPosition);
+
+			commonName.setText(e.getCommonName());
+			species.setText(e.getSpecies());
+			amount.setText(e.getAmount());
+			behavorialDescription.setText(e.getBehavorialDescription());
+
+			// set county spinner
+			adapter = (ArrayAdapter) countySpinner.getAdapter(); // cast to an
+																	// ArrayAdapter
+			spinnerPosition = adapter.getPosition(e.getCounty());
+			// set the default according to value
+			countySpinner.setSelection(spinnerPosition);
+
+			// set observational technique spinner
+			adapter = (ArrayAdapter) observationalSpinner.getAdapter(); // cast
+																		// to an
+																		// ArrayAdapter
+			spinnerPosition = adapter
+					.getPosition(e.getObservationalTechnique());
+			// set the default according to value
+			observationalSpinner.setSelection(spinnerPosition);
+
+			observationalTechniqueOther.setText(e
+					.getObservationalTechniqueOther());
+			ecosystem.setText(e.getEcosystemType());
+			additionalInformation.setText(e.getAdditionalInformation());
+
+			if (e.getLatitude() != null) {
+				latitudeEditText.setText(e.getLatitude());
+			}
+			if (e.getLongitude() != null) {
+				longitudeEditText.setText(e.getLongitude());
+			}
+			if (e.getAltitude() != null) {
+				altitudeEditText.setText(e.getAltitude());
+			}
 		}
 
 	}
@@ -287,7 +292,10 @@ public class NewSubmission extends Fragment implements LocationListener {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		//Store action bar
+		
+
+
+		// Store action bar
 		ab = getActivity().getActionBar();
 
 		// Start a new entry
@@ -338,6 +346,15 @@ public class NewSubmission extends Fragment implements LocationListener {
 		additionalInformation = (EditText) getActivity().findViewById(
 				R.id.additionalInformationTextField);
 		audioStatus = (TextView) getActivity().findViewById(R.id.audioStatus);
+		
+		//Set first/last/email if the user has already entered in an entry
+		prefs = getActivity().getSharedPreferences("com.example.uwoshkoshbestiary",
+				Context.MODE_PRIVATE);
+		
+		firstName.setText(prefs.getString("firstName", ""));
+		lastName.setText(prefs.getString("lastName", ""));
+		email.setText(prefs.getString("email", ""));
+		
 
 		// Save location listener to fragment so you can stop updates later
 		ll = this;
@@ -400,7 +417,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 
 			@Override
 			public void onClick(View arg0) {
-				
+
 				clearForm();
 
 			}
@@ -603,6 +620,10 @@ public class NewSubmission extends Fragment implements LocationListener {
 					message = "Please select a group/phyla";
 					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
 				} else {
+					
+					DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+					String timestamp = dateFormat.format(new Date());
+					e.setCurrentTime(timestamp);
 
 					if (comingFromExistingSubmission) {
 						// Not in a new submission anymore
@@ -645,7 +666,6 @@ public class NewSubmission extends Fragment implements LocationListener {
 									.show();
 							clearForm();
 							ab.setSelectedNavigationItem(1);
-							
 
 						} else {
 							message = "Failure";
@@ -691,9 +711,9 @@ public class NewSubmission extends Fragment implements LocationListener {
 							message = "Success";
 							Toast.makeText(c, message, Toast.LENGTH_SHORT)
 									.show();
-							//clearForm();
-							//ab.setSelectedNavigationItem(1);
-							
+							// clearForm();
+							// ab.setSelectedNavigationItem(1);
+
 						} else {
 							message = "Failure";
 							Toast.makeText(c, message, Toast.LENGTH_SHORT)
@@ -701,12 +721,13 @@ public class NewSubmission extends Fragment implements LocationListener {
 						}
 					}
 
-					if (e.getPhotoTime() != null) {
-						Log.d("photo time", e.getPhotoTime());
-					}
-					if (e.getVideoTime() != null) {
-						Log.d("video time", e.getVideoTime());
-					}
+					prefs = getActivity().getSharedPreferences("com.example.uwoshkoshbestiary",
+							Context.MODE_PRIVATE);
+					Editor editor = prefs.edit();
+					editor.putString("firstName", e.getFirstName());
+					editor.putString("lastName", e.getLastName());
+					editor.putString("email", e.getEmail());
+					editor.commit();
 
 				}
 
@@ -730,7 +751,6 @@ public class NewSubmission extends Fragment implements LocationListener {
 			return false;
 		}
 	}
-
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -787,21 +807,18 @@ public class NewSubmission extends Fragment implements LocationListener {
 		} else if (requestCode == VIDEO_CAPTURE) {
 			// Check to make sure the user didn't cancel the image selection
 			if (data != null) {
-				
+
 				// Delete old recorded video
 				if (oldVideoFileUri != null) {
 					deleteOldFile(oldVideoFileUri.getPath());
 				}
-				
+
 				oldVideoFileUri = videoFileUri;
 				Uri uri = data.getData();
 				videoFileUri = uri;
-				
-				
 
 				// Save file path to Entry class
 				e.setVideoPath(videoFileUri.getPath());
-
 
 			}
 		}
@@ -809,12 +826,12 @@ public class NewSubmission extends Fragment implements LocationListener {
 		else if (requestCode == GALLERY_CHOSEN_VIDEO) {
 			// Check to make sure the user didn't cancel the image selection
 			if (data != null) {
-				
+
 				// Delete old recorded video
 				if (oldVideoFileUri != null) {
 					deleteOldFile(oldVideoFileUri.getPath());
 				}
-				
+
 				oldVideoFileUri = videoFileUri;
 				Uri uri = data.getData();
 				videoFileUri = uri;
@@ -822,7 +839,6 @@ public class NewSubmission extends Fragment implements LocationListener {
 				// Save file path to Entry class
 				e.setVideoPath(videoFileUri.getPath());
 				setVideoTime();
-
 
 			}
 
@@ -834,7 +850,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 				// Store existing imageURI
 				oldImageFileUri = imageFileUri;
 
-				// Get image data 
+				// Get image data
 				Uri selectedImageURI = data.getData();
 
 				// Get absolute bath
@@ -1357,7 +1373,6 @@ public class NewSubmission extends Fragment implements LocationListener {
 		String hour = metadataDate.substring(9, 11);
 		String minute = metadataDate.substring(11, 13);
 		String second = metadataDate.substring(13, 15);
-		
 
 		e.setVideoTime(year + ":" + month + ":" + day + " " + hour + ":"
 				+ minute + ":" + second);
@@ -1368,9 +1383,8 @@ public class NewSubmission extends Fragment implements LocationListener {
 		bitmap.compress(CompressFormat.PNG, 0, outputStream);
 		return outputStream.toByteArray();
 	}
-	
-	public void clearForm()
-	{
+
+	public void clearForm() {
 
 		// Not in the existing submission tab
 		comingFromExistingSubmission = false;

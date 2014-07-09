@@ -44,37 +44,38 @@ public class ExistingSubmission extends Fragment {
 	//Hashmap of all the entires with each key value pair pairing with an entry's information
 	ArrayList<HashMap<String, String>> entries;
 
-	public static final String ID = "id";
-	public static final String TABLE_NAME = "entry";
-	public static final String PHOTO = "photo";
-	public static final String VIDEO = "video";
-	public static final String AUDIO = "audio";
-	public static final String FIRST_NAME = "firstName";
-	public static final String LAST_NAME = "lastName";
-	public static final String EMAIL = "email";
-	public static final String AFFILIATION = "affiliation";
-	public static final String GROUP = "groupOrPhyla";
-	public static final String COMMON_NAME = "commonName";
-	public static final String SPECIES = "species";
-	public static final String AMOUNT = "amount";
-	public static final String BEHAVORIAL_DESCRIPTION = "behavorialDescription";
-	public static final String COUNTY = "county";
-	public static final String OBSERVATIONAL_TECHNIQUE = "observationalTechnique";
-	public static final String OBSERVATIONAL_TECHNIQUE_OTHER = "observationalTechniqueOther";
-	public static final String ECOSYSTEM_TYPE = "ecosystemType";
-	public static final String ADDITIONAL_INFORMATION = "additionalInformation";
-	public static final String LATITUDE = "latitude";
-	public static final String LONGITUDE = "longitude";
-	public static final String ALTITUDE = "altitude";
-	public static final String PRIVACY_SETTING = "privacySetting";
-	public static final String TEMPERATURE = "temperature";
-	public static final String WIND_SPEED = "windSpeed";
-	public static final String WIND_DIRECTION = "windDirection";
-	public static final String PRESSURE = "pressure";
-	public static final String PRECIPITATION = "precipitation";
-	public static final String PRECIPITATION_MEASURE = "precipitationMeasure";
-	public static final String TIME_PHOTO = "photoTime";
-	public static final String TIME_VIDEO = "videoTime";
+	private static final String ID = "id";
+	private static final String TABLE_NAME = "entry";
+	private static final String PHOTO = "photo";
+	private static final String VIDEO = "video";
+	private static final String AUDIO = "audio";
+	private static final String FIRST_NAME = "firstName";
+	private static final String LAST_NAME = "lastName";
+	private static final String EMAIL = "email";
+	private static final String AFFILIATION = "affiliation";
+	private static final String GROUP = "groupOrPhyla";
+	private static final String COMMON_NAME = "commonName";
+	private static final String SPECIES = "species";
+	private static final String AMOUNT = "amount";
+	private static final String BEHAVORIAL_DESCRIPTION = "behavorialDescription";
+	private static final String COUNTY = "county";
+	private static final String OBSERVATIONAL_TECHNIQUE = "observationalTechnique";
+	private static final String OBSERVATIONAL_TECHNIQUE_OTHER = "observationalTechniqueOther";
+	private static final String ECOSYSTEM_TYPE = "ecosystemType";
+	private static final String ADDITIONAL_INFORMATION = "additionalInformation";
+	private static final String LATITUDE = "latitude";
+	private static final String LONGITUDE = "longitude";
+	private static final String ALTITUDE = "altitude";
+	private static final String PRIVACY_SETTING = "privacySetting";
+	private static final String TEMPERATURE = "temperature";
+	private static final String WIND_SPEED = "windSpeed";
+	private static final String WIND_DIRECTION = "windDirection";
+	private static final String PRESSURE = "pressure";
+	private static final String PRECIPITATION = "precipitation";
+	private static final String PRECIPITATION_MEASURE = "precipitationMeasure";
+	private static final String TIME_PHOTO = "photoTime";
+	private static final String TIME_VIDEO = "videoTime";
+	private static final String CURRENT_TIME = "currentTime";
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -181,6 +182,7 @@ public class ExistingSubmission extends Fragment {
 			map.put(TIME_PHOTO, allEntresFromDatabase.get(i).getPhotoTime());
 			map.put(TIME_VIDEO, allEntresFromDatabase.get(i).getVideoTime());
 			map.put(ID,allEntresFromDatabase.get(i).getID());
+			map.put(CURRENT_TIME, allEntresFromDatabase.get(i).getCurrentTime());
 
 			// adding HashList to ArrayList
 			entries.add(map);
