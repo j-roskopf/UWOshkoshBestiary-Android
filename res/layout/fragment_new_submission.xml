@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.uwoshkoshbestiary.NewSubmission$PlaceholderFragment"
      >
@@ -39,6 +39,9 @@
             android:layout_height="wrap_content"
             android:onClick="callVideoCaptureIntent"
             android:layout_weight=".3"
+            android:background="@drawable/button"
+            android:textColor="@android:color/white"
+            android:layout_marginRight="2dp"
             android:text="Add Photo/Video" />
 
         <Button
@@ -46,6 +49,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight=".3"
+            android:background="@drawable/button"
+            android:layout_marginLeft="2dp"
+            android:textColor="@android:color/white"
             android:text="View Video" />
 	        
 	 </LinearLayout>
@@ -61,6 +67,10 @@
             android:id="@+id/addAudio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:textColor="@android:color/white"
+            
+            android:layout_margin="4dp"
             android:text="Add Audio" />
 
         <TextView
@@ -68,6 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_margin="4dp"
             android:text="Not Recorded" />
 
         <EditText
@@ -76,12 +87,14 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
+            android:layout_margin="4dp"
             android:hint="First Name" />
 
         <EditText
             android:id="@+id/lastNameTextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="4dp"
             android:ems="10"
             android:hint="Last Name" />
 
@@ -89,6 +102,7 @@
             android:id="@+id/emailTextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="4dp"
             android:ems="10"
             android:inputType="textEmailAddress"
             android:hint="Email" />
@@ -98,6 +112,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_margin="4dp"
             android:text="Affiliation" />
         
         <Spinner
@@ -105,6 +120,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/affiliation_array"
+            android:layout_margin="4dp"
             android:prompt="@string/affiliation_prompt" />
 
         <Spinner
@@ -112,6 +128,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/group_array"
+            android:layout_margin="4dp"
             android:prompt="@string/group_prompt" />
 
 
@@ -123,6 +140,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
+            android:layout_margin="4dp"
             android:hint="Common Name" />
 
           <EditText
@@ -130,6 +148,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:hint="Species"
+              android:layout_margin="4dp"
               android:ems="10" >
 
           </EditText>
@@ -138,6 +157,7 @@
               android:id="@+id/amountTextField"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              android:layout_margin="4dp"
               android:ems="10"
               android:hint="Number of animal seen"
               android:inputType="numberSigned" />
@@ -148,6 +168,7 @@
               android:layout_height="wrap_content"
               android:ems="10"
               android:hint="Behavorial Description"
+              android:layout_margin="4dp"
               android:inputType="textMultiLine" />
           
           
@@ -156,12 +177,14 @@
                android:layout_width="fill_parent"
                android:layout_height="wrap_content"
                android:entries="@array/county_array"
+               android:layout_margin="4dp"
                android:prompt="@string/county_prompt" />
 
         <Spinner
             android:id="@+id/observationTechniqueSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="4dp"
             android:entries="@array/observational_array"
             android:prompt="@string/observational_prompt" />
 
@@ -171,6 +194,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Obersvational Technique (Other)"
+            android:layout_margin="4dp"
             android:inputType="textMultiLine" />
         
         <EditText
@@ -179,6 +203,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Ecosystem Type"
+            android:layout_margin="4dp"
             android:inputType="textMultiLine" />
         
         <EditText
@@ -187,6 +212,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Additional Information"
+            android:layout_margin="4dp"
             android:inputType="textMultiLine" />
 
         <Button
@@ -194,6 +220,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_margin="4dp"
+            android:background="@drawable/button"
+            android:textColor="@android:color/white"
             android:text="Collect Location Manually" />
 
         <EditText
@@ -202,6 +231,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Latitude"
+            android:layout_margin="4dp"
             android:inputType="numberDecimal" />
         
         <EditText
@@ -210,6 +240,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Longitude"
+            android:layout_margin="4dp"
             android:inputType="numberDecimal" />
         
         <EditText
@@ -218,6 +249,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Altitude"
+            android:layout_margin="4dp"
             android:inputType="numberDecimal" />
         
        <TextView
@@ -225,6 +257,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_margin="4dp"
             android:text="I want my location to be" />
        
        <Spinner
@@ -233,13 +266,17 @@
             android:layout_height="wrap_content"
             android:entries="@array/privacy_array"
             android:prompt="@string/privacy_prompt"
+            android:layout_margin="4dp"
              />
        
        <Button
             android:id="@+id/weatherDatabutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:textColor="@android:color/white"
             android:layout_gravity="center"
+            android:layout_margin="4dp"
             android:text="Weather Data Collected" />
        
        <Button
@@ -247,6 +284,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:background="@drawable/button"
+            android:textColor="@android:color/white"
+            android:layout_margin="4dp"
             android:text="Discard" />
        
        <Button
@@ -254,6 +294,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:background="@drawable/button"
+            android:textColor="@android:color/white"
+            android:layout_margin="4dp"
+            android:drawablePadding="2dip"
             android:text="Save Changes" />
        
        <Button
@@ -261,6 +305,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:background="@drawable/button"
+            android:textColor="@android:color/white"
+            android:layout_margin="4dp"
             android:text="Submit" />
        
        

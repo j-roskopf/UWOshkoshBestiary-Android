@@ -12,6 +12,9 @@
         android:layout_alignLeft="@+id/btnStart"
         android:layout_alignRight="@+id/btnStart"
         android:layout_below="@+id/btnStart"
+        android:background="@drawable/button"
+        android:textColor="@android:color/white"
+        android:layout_margin="4dp"
         android:text="@string/stop_recording" />
 
     <Button
@@ -21,12 +24,18 @@
         android:layout_alignLeft="@+id/btnStop"
         android:layout_alignRight="@+id/btnStop"
         android:layout_below="@+id/btnStop"
+        android:background="@drawable/button"
+        android:textColor="@android:color/white"
+        android:layout_margin="4dp"
         android:text="Play" />
 
     <Button
         android:id="@+id/btnStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/button"
+        android:textColor="@android:color/white"
+        android:layout_margin="4dp"
         android:text="@string/start_recording" />
 
     <Button
@@ -35,6 +44,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:background="@drawable/button"
+        android:textColor="@android:color/white"
         android:text="Save" />
 
 </RelativeLayout>
