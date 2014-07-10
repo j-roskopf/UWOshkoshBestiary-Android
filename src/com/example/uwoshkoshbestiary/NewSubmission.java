@@ -63,8 +63,8 @@ import android.os.Build;
 import android.provider.MediaStore;
 
 public class NewSubmission extends Fragment implements LocationListener {
-	
-	//Shared preferences
+
+	// Shared preferences
 	SharedPreferences prefs;
 
 	// UI References
@@ -292,8 +292,6 @@ public class NewSubmission extends Fragment implements LocationListener {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-
 
 		// Store action bar
 		ab = getActivity().getActionBar();
@@ -346,15 +344,14 @@ public class NewSubmission extends Fragment implements LocationListener {
 		additionalInformation = (EditText) getActivity().findViewById(
 				R.id.additionalInformationTextField);
 		audioStatus = (TextView) getActivity().findViewById(R.id.audioStatus);
-		
-		//Set first/last/email if the user has already entered in an entry
-		prefs = getActivity().getSharedPreferences("com.example.uwoshkoshbestiary",
-				Context.MODE_PRIVATE);
-		
+
+		// Set first/last/email if the user has already entered in an entry
+		prefs = getActivity().getSharedPreferences(
+				"com.example.uwoshkoshbestiary", Context.MODE_PRIVATE);
+
 		firstName.setText(prefs.getString("firstName", ""));
 		lastName.setText(prefs.getString("lastName", ""));
 		email.setText(prefs.getString("email", ""));
-		
 
 		// Save location listener to fragment so you can stop updates later
 		ll = this;
@@ -418,7 +415,27 @@ public class NewSubmission extends Fragment implements LocationListener {
 			@Override
 			public void onClick(View arg0) {
 
-				clearForm();
+				new AlertDialog.Builder(getActivity())
+						.setTitle("Confirm discard")
+						.setMessage("You will loose all data regarding this submission")
+						.setCancelable(false)
+						.setPositiveButton("Yes",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										clearForm();
+
+									}
+								})
+						.setNegativeButton("No",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										// if this button is clicked, just close
+										// the dialog box and do nothing
+										dialog.cancel();
+									}
+								}).show();
 
 			}
 
@@ -620,8 +637,9 @@ public class NewSubmission extends Fragment implements LocationListener {
 					message = "Please select a group/phyla";
 					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
 				} else {
-					
-					DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
+					DateFormat dateFormat = new SimpleDateFormat(
+							"MM/dd/yyyy HH:mm:ss");
 					String timestamp = dateFormat.format(new Date());
 					e.setCurrentTime(timestamp);
 
@@ -721,7 +739,8 @@ public class NewSubmission extends Fragment implements LocationListener {
 						}
 					}
 
-					prefs = getActivity().getSharedPreferences("com.example.uwoshkoshbestiary",
+					prefs = getActivity().getSharedPreferences(
+							"com.example.uwoshkoshbestiary",
 							Context.MODE_PRIVATE);
 					Editor editor = prefs.edit();
 					editor.putString("firstName", e.getFirstName());
