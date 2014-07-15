@@ -164,7 +164,6 @@ public class NewSubmission extends Fragment implements LocationListener {
 			view = inflater.inflate(R.layout.fragment_new_submission,
 					container, false);
 		} catch (InflateException e) {
-			/* map is already there, just return view as it is */
 		}
 
 		return view;
@@ -642,6 +641,14 @@ public class NewSubmission extends Fragment implements LocationListener {
 							"MM/dd/yyyy HH:mm:ss");
 					String timestamp = dateFormat.format(new Date());
 					e.setCurrentTime(timestamp);
+					
+					//Save preferences
+					Editor editor = prefs.edit();
+					editor.putString("firstName", firstName.getText().toString());
+					editor.putString("lastName", lastName.getText().toString());
+					editor.putString("email", email.getText().toString());
+					editor.commit();
+					Log.d(e.getEmail(),"stuff");
 
 					if (comingFromExistingSubmission) {
 						// Not in a new submission anymore
@@ -729,8 +736,8 @@ public class NewSubmission extends Fragment implements LocationListener {
 							message = "Success";
 							Toast.makeText(c, message, Toast.LENGTH_SHORT)
 									.show();
-							// clearForm();
-							// ab.setSelectedNavigationItem(1);
+							clearForm();
+							ab.setSelectedNavigationItem(1);
 
 						} else {
 							message = "Failure";
@@ -739,14 +746,6 @@ public class NewSubmission extends Fragment implements LocationListener {
 						}
 					}
 
-					prefs = getActivity().getSharedPreferences(
-							"com.example.uwoshkoshbestiary",
-							Context.MODE_PRIVATE);
-					Editor editor = prefs.edit();
-					editor.putString("firstName", e.getFirstName());
-					editor.putString("lastName", e.getLastName());
-					editor.putString("email", e.getEmail());
-					editor.commit();
 
 				}
 
@@ -1418,7 +1417,9 @@ public class NewSubmission extends Fragment implements LocationListener {
 		capturedPicture.setImageDrawable(getResources().getDrawable(
 				android.R.drawable.ic_menu_gallery));
 
-		// No need to set anything with the audio
+		// No need to set anything with the audio. This is handled with the e being set to new entry
+		audioStatus.setText("Not Recorded");
+		
 
 		firstName.setText("");
 		lastName.setText("");
