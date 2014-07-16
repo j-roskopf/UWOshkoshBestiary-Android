@@ -14,6 +14,7 @@ import java.io.IOException;
 import database.Entry;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
@@ -40,11 +41,19 @@ public class AudioRecording extends Activity {
 
 	// used to play the song
 	MediaPlayer mp;
-	
+
 	//Used to store the filename for the recorded audio
 	String pathForAudioFile;
 	String oldPathForAudioFile;
 	
+	Button play;
+	Button stop;
+	Button start;
+	Button save;
+	
+	int colorOn;
+	int colorOff;
+
 
 
 	@Override
@@ -53,15 +62,24 @@ public class AudioRecording extends Activity {
 		setContentView(R.layout.activity_audio_recording);
 
 
-		setButtonHandlers();
+		start = ((Button) findViewById(R.id.btnStart));
+		stop = ((Button) findViewById(R.id.btnStop));
+		save = ((Button) findViewById(R.id.btnSave));
+		play = ((Button) findViewById(R.id.btnPlay));
+		
+		colorOff = Color.rgb(146, 185, 212);
+		colorOn = Color.rgb(37, 116, 169);
+		
+
+
 		enableButtons(false);
 
 		bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE,
 				RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
-		
+
 		//New media player
 		mp = new MediaPlayer();
-		
+
 		if(NewSubmission.e.getAudioPath() != null)
 		{
 			pathForAudioFile = NewSubmission.e.getAudioPath();
@@ -69,8 +87,10 @@ public class AudioRecording extends Activity {
 		else
 		{
 			pathForAudioFile = null;
-
 		}
+		
+		setButtonHandlers();
+
 		//Set null file paths
 		oldPathForAudioFile = null;
 	}
@@ -80,6 +100,28 @@ public class AudioRecording extends Activity {
 		((Button) findViewById(R.id.btnStop)).setOnClickListener(btnClick);
 		((Button) findViewById(R.id.btnSave)).setOnClickListener(btnClick);
 		((Button) findViewById(R.id.btnPlay)).setOnClickListener(btnClick);
+		
+		if(pathForAudioFile == null)
+		{
+			play.setBackgroundColor(colorOff);
+			play.setEnabled(false);
+			
+			stop.setBackgroundColor(colorOff);
+			stop.setEnabled(false);
+			
+			save.setBackgroundColor(colorOff);
+			save.setEnabled(false);
+		}
+		else
+		{
+			stop.setBackgroundColor(colorOff);
+			stop.setEnabled(false);
+			
+			play.setBackgroundColor(colorOn);
+			play.setEnabled(true);
+			
+			
+		}
 	}
 
 	private void enableButton(int id, boolean isEnable) {
@@ -284,7 +326,7 @@ public class AudioRecording extends Activity {
 
 		out.write(header, 0, 44);
 	}
-	
+
 	private void deleteOldFile(String path) {
 		File fdelete = new File(path);
 		if (fdelete.exists()) {
@@ -310,8 +352,13 @@ public class AudioRecording extends Activity {
 					deleteOldFile(oldPathForAudioFile);
 				}
 				pathForAudioFile = getFilename();
-
-				enableButtons(true);
+				
+				start.setEnabled(false);
+				start.setBackgroundColor(colorOff);
+				
+				stop.setEnabled(true);
+				stop.setBackgroundColor(colorOn);
+				
 				startRecording();
 
 				break;
@@ -332,12 +379,23 @@ public class AudioRecording extends Activity {
 			    } catch (Exception e) {
 			        e.printStackTrace();
 			    }
-				
+
 
 				break;
 			}
 			case R.id.btnStop: {
 				enableButtons(false);
+				start.setEnabled(true);
+				start.setBackgroundColor(colorOn);
+				
+				play.setEnabled(true);
+				play.setBackgroundColor(colorOn);
+				
+				save.setBackgroundColor(colorOn);
+				save.setEnabled(true);
+				
+				stop.setBackgroundColor(colorOff);
+				stop.setEnabled(false);
 				stopRecording();
 
 				break;

@@ -181,6 +181,8 @@ public class NewSubmission extends Fragment implements LocationListener {
 			cb.setChecked(isVisibleToUser);
 			sv.setVisibility(1);
 			sv.fullScroll(ScrollView.FOCUS_UP);
+			
+			
 
 			// Depending on the orientation of the phone when the image was
 			// taken, the image can be displayed
@@ -223,7 +225,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-
+			
 			// Setting the video stuff
 			if (e.getVideoPath() != null) {
 				videoFileUri = Uri.parse(e.getVideoPath());
@@ -241,6 +243,11 @@ public class NewSubmission extends Fragment implements LocationListener {
 			int spinnerPosition = adapter.getPosition(e.getAffiliation());
 			// set the default according to value
 			affiliationSpinner.setSelection(spinnerPosition);
+			
+			if(e.getAudioPath() != null)
+			{
+				audioStatus.setText("Recorded");
+			}
 
 			// set group spinner
 			adapter = (ArrayAdapter) groupSpinner.getAdapter(); // cast to an
@@ -399,10 +406,11 @@ public class NewSubmission extends Fragment implements LocationListener {
 			public void onClick(View arg0) {
 
 				Intent ar = new Intent(getActivity(), AudioRecording.class);
+				Bundle mBundle = new Bundle();
+				mBundle.putSerializable("entry", e);
+				ar.putExtras(mBundle);
 				ar.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				ar.putExtra("entry", e);
 				startActivity(ar);
-
 			}
 
 		});

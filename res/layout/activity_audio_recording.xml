@@ -9,25 +9,22 @@
         android:id="@+id/btnStop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/btnStart"
-        android:layout_alignRight="@+id/btnStart"
+
         android:layout_below="@+id/btnStart"
-        android:background="@drawable/button"
-        android:textColor="@android:color/white"
         android:layout_margin="4dp"
-        android:text="@string/stop_recording" />
+        android:background="@drawable/button"
+        android:text="@string/stop_recording"
+        android:textColor="@android:color/white" />
 
     <Button
         android:id="@+id/btnPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/btnStop"
-        android:layout_alignRight="@+id/btnStop"
         android:layout_below="@+id/btnStop"
-        android:background="@drawable/button"
-        android:textColor="@android:color/white"
         android:layout_margin="4dp"
-        android:text="Play" />
+        android:background="@drawable/button"
+        android:text="Play"
+        android:textColor="@android:color/white" />
 
     <Button
         android:id="@+id/btnStart"
