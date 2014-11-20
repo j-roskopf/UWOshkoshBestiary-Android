@@ -229,4 +229,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		res.close();
 		return entries;
 	}
+	
+	public int removeEntry(Entry e) {
+
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		try {
+		      db.delete(TABLE_NAME, "id " + "=" + e.getID(), null);
+		} catch (SQLiteException e1) {
+			db.close();
+			return -1;
+		}
+
+		db.close(); // Closing database connection
+		return 1;
+
+	}
 }

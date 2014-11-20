@@ -271,6 +271,17 @@ public class Entry implements Serializable {
 	private String pressure;
 	private String precipitation;
 	private String precipitationMeasure;
+	private boolean usingExistingPhotoOrVideo;
+
+
+	public boolean getUsingExistingPhotoOrVideo() {
+		return usingExistingPhotoOrVideo;
+	}
+
+
+	public void setUsingExistingPhotoOrVideo(boolean usingExistingPhotoOrVideo) {
+		this.usingExistingPhotoOrVideo = usingExistingPhotoOrVideo;
+	}
 
 	public String getPrecipitationMeasure() {
 		return precipitationMeasure;

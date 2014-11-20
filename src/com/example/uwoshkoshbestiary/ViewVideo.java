@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -29,6 +30,10 @@ public class ViewVideo extends Activity {
 		
 		Intent intent = getIntent();
 		videoUri = intent.getParcelableExtra("videoUri");
+		if(videoUri != null){
+			Log.d("D","123456789 " + videoUri.getPath());
+		}
+		
 		
 		vv.setOnTouchListener(new OnTouchListener(){
 
@@ -50,7 +55,7 @@ public class ViewVideo extends Activity {
 		
 		if(videoUri != null)
 		{
-
+			
 			vv.setVideoPath(videoUri.getPath());
 			vv.start();
 		}

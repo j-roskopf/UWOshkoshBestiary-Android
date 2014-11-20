@@ -126,9 +126,9 @@
     </string-array>
     <string-array name="privacy_array">
         <item>Choose a privacy setting</item>
-        <item>Public</item>
-        <item>Private</item>
-        <item>Obscured</item>
+        <item>My information will be public</item>
+        <item>My information will be private</item>
+        <item>My information will be obscured</item>
     </string-array>
     <string-array name="observational_array">
         <item>Choose an observational technique</item>

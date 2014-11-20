@@ -193,7 +193,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Obersvational Technique (Other)"
+            android:hint="Observational Technique (Other)"
             android:layout_margin="4dp"
             android:inputType="textMultiLine" />
         

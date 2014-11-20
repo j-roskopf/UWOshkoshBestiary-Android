@@ -10,16 +10,24 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.androidquery.AQuery;
+import com.androidquery.callback.AjaxCallback;
+import com.androidquery.callback.AjaxStatus;
 
 import database.DatabaseHelper;
 import database.Entry;
 
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -53,6 +61,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -64,41 +73,45 @@ import android.provider.MediaStore;
 
 public class NewSubmission extends Fragment implements LocationListener {
 
+	private final String URL_FOR_SUBMISSION = "https://plonedev.uwosh.edu/zmi41/sites4/Bestiary/bestiary-submissions";
+
 	// Shared preferences
 	SharedPreferences prefs;
 
 	// UI References
 
 	// TOS checkbox
-	CheckBox cb;
-	ScrollView sv;
-	Spinner privacySpinner;
-	Spinner observationalSpinner;
-	Spinner countySpinner;
-	Spinner groupSpinner;
-	Spinner affiliationSpinner;
-	Button photoVideoButton;
-	Button viewVideoButton;
-	Button audioButton;
-	Button weatherButton;
-	Button discardButton;
-	ImageView capturedPicture;
-	Button saveButton;
-	Button manualLocationButton;
-	TextView audioStatus;
-	EditText firstName;
-	EditText lastName;
-	EditText email;
-	EditText commonName;
-	EditText species;
-	EditText amount;
-	EditText behavorialDescription;
-	EditText ecosystem;
-	EditText observationalTechniqueOther;
-	EditText additionalInformation;
-	EditText altitudeEditText;
-	EditText longitudeEditText;
-	EditText latitudeEditText;
+	private CheckBox cb;
+	private ScrollView sv;
+	private Spinner privacySpinner;
+	private Spinner observationalSpinner;
+	private Spinner countySpinner;
+	private Spinner groupSpinner;
+	private Spinner affiliationSpinner;
+	private Button photoVideoButton;
+	private Button viewVideoButton;
+	private Button audioButton;
+	private Button weatherButton;
+	private Button discardButton;
+	private ImageView capturedPicture;
+	private Button saveButton;
+	private Button submitButton;
+	private Button manualLocationButton;
+	private TextView audioStatus;
+	private EditText firstName;
+	private EditText lastName;
+	private EditText email;
+	private EditText commonName;
+	private EditText species;
+	private EditText amount;
+	private EditText behavorialDescription;
+	private EditText ecosystem;
+	private EditText observationalTechniqueOther;
+	private EditText additionalInformation;
+	private EditText altitudeEditText;
+	private EditText longitudeEditText;
+	private EditText latitudeEditText;
+	private ProgressDialog prgDialog;
 
 	// Activity request codes
 	private static final int VIDEO_CAPTURE = 101;
@@ -110,39 +123,42 @@ public class NewSubmission extends Fragment implements LocationListener {
 
 	// Path for image/video. I store thet old Uri so if the user records a new
 	// video/image, the old one will be deleted
-	Uri oldImageFileUri;
-	Uri imageFileUri;
-	Uri oldVideoFileUri;
-	Uri videoFileUri;
+	private Uri oldImageFileUri;
+	private Uri imageFileUri;
+	private Uri oldVideoFileUri;
+	private Uri videoFileUri;
 
 	private static View view;
 
 	// Location objects
-	LocationManager lm;
-	Location location;
-	static double longitude;
-	static double latitude;
-	static double altitude;
-	Geocoder gcd;
-	String locationToSend;
-	LocationListener ll;
+	private LocationManager lm;
+	private Location location;
+	private static double longitude;
+	private static double latitude;
+	private static double altitude;
+	private Geocoder gcd;
+	private String locationToSend;
+	private LocationListener ll;
+
+	// Using existing picture or not
+	boolean comingFromExisting = false;
 
 	// Used to store if the location was successfully retrieved.
 	static boolean retrievedLocation;
 
 	// Used to manually switch to the new submission tab when the user clicks on
 	// an entry
-	android.app.ActionBar ab;
+	private android.app.ActionBar ab;
 
 	// Used to determine weather direction from degrees
-	String[] dirTable = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-			"S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
+	private String[] dirTable = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE",
+			"SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
 
 	// Database helper
-	DatabaseHelper db;
+	private DatabaseHelper db;
 
 	// Context
-	Context c;
+	private Context c;
 
 	// Current Entry
 	static Entry e;
@@ -181,15 +197,14 @@ public class NewSubmission extends Fragment implements LocationListener {
 			cb.setChecked(isVisibleToUser);
 			sv.setVisibility(1);
 			sv.fullScroll(ScrollView.FOCUS_UP);
-			
-			
 
 			// Depending on the orientation of the phone when the image was
 			// taken, the image can be displayed
 			// sideways in the image view. This will rotate the image correctly
 			Matrix matrix = new Matrix();
 			try {
-				if (e.getPhotoPath() != null) {
+				if (e.getPhotoPath() != null
+						&& new File(e.getPhotoPath()).exists()) {
 					ExifInterface exif = new ExifInterface(e.getPhotoPath());
 					int orientation = exif.getAttributeInt(
 							ExifInterface.TAG_ORIENTATION, 1);
@@ -225,10 +240,10 @@ public class NewSubmission extends Fragment implements LocationListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
+
 			// Setting the video stuff
 			if (e.getVideoPath() != null) {
-				videoFileUri = Uri.parse(e.getVideoPath());
+				videoFileUri = Uri.fromFile(new File(e.getVideoPath()));
 			}
 
 			// No need to set anything with the audio
@@ -243,9 +258,8 @@ public class NewSubmission extends Fragment implements LocationListener {
 			int spinnerPosition = adapter.getPosition(e.getAffiliation());
 			// set the default according to value
 			affiliationSpinner.setSelection(spinnerPosition);
-			
-			if(e.getAudioPath() != null)
-			{
+
+			if (e.getAudioPath() != null) {
 				audioStatus.setText("Recorded");
 			}
 
@@ -424,7 +438,8 @@ public class NewSubmission extends Fragment implements LocationListener {
 
 				new AlertDialog.Builder(getActivity())
 						.setTitle("Confirm discard")
-						.setMessage("You will loose all data regarding this submission")
+						.setMessage(
+								"You will loose all data regarding this submission")
 						.setCancelable(false)
 						.setPositiveButton("Yes",
 								new DialogInterface.OnClickListener() {
@@ -491,9 +506,10 @@ public class NewSubmission extends Fragment implements LocationListener {
 									switch (which) {
 									case 0:
 										String timestamp = new SimpleDateFormat(
-												"yyyy:mm-dd HH-mm-ss")
+												"yyyy-MM-dd-HH-mm-ss")
 												.format(Calendar.getInstance()
 														.getTime());
+										e.setUsingExistingPhotoOrVideo(true);
 										e.setPhotoTime(timestamp);
 										File filepath = Environment
 												.getExternalStorageDirectory();
@@ -520,10 +536,12 @@ public class NewSubmission extends Fragment implements LocationListener {
 										break;
 									case 1:
 										timestamp = new SimpleDateFormat(
-												"yyyy:mm-dd HH-mm-ss")
+												"yyyy-MM-dd-HH-mm-ss")
 												.format(Calendar.getInstance()
 														.getTime());
 										e.setVideoTime(timestamp);
+										e.setUsingExistingPhotoOrVideo(true);
+
 										filepath = Environment
 												.getExternalStorageDirectory();
 										dir = new File(filepath
@@ -567,6 +585,8 @@ public class NewSubmission extends Fragment implements LocationListener {
 											startActivityForResult(intent,
 													GALLERY_KITKAT_INTENT_CALLED_IMAGE);
 										}
+										e.setUsingExistingPhotoOrVideo(false);
+
 										break;
 									case 3:
 										// Kitkat changed the way picking
@@ -585,8 +605,12 @@ public class NewSubmission extends Fragment implements LocationListener {
 											intent.setType("video/*");
 											startActivityForResult(intent,
 													GALLERY_KITKAT_INTENT_CALLED_VIDEO);
-											break;
+
 										}
+										e.setUsingExistingPhotoOrVideo(false);
+
+										break;
+
 									}
 								}
 							});
@@ -630,130 +654,466 @@ public class NewSubmission extends Fragment implements LocationListener {
 			@Override
 			public void onClick(View arg0) {
 				String message;
-				if (firstName.getText().toString().equals("")) {
-					message = "Please enter a first name";
-					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
-				} else if (lastName.getText().toString().equals("")) {
-					message = "Please enter a last name";
-					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
-				} else if (email.getText().toString().equals("")) {
-					message = "Please enter an email";
-					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
-				} else if (groupSpinner.getSelectedItem().toString()
-						.equals("Choose a group/phyla")) {
-					message = "Please select a group/phyla";
-					Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
-				} else {
 
-					DateFormat dateFormat = new SimpleDateFormat(
-							"MM/dd/yyyy HH:mm:ss");
-					String timestamp = dateFormat.format(new Date());
-					e.setCurrentTime(timestamp);
-					
-					//Save preferences
-					Editor editor = prefs.edit();
-					editor.putString("firstName", firstName.getText().toString());
-					editor.putString("lastName", lastName.getText().toString());
-					editor.putString("email", email.getText().toString());
-					editor.commit();
-					Log.d(e.getEmail(),"stuff");
+				DateFormat dateFormat = new SimpleDateFormat(
+						"MM/dd/yyyy HH:mm:ss");
+				String timestamp = dateFormat.format(new Date());
+				e.setCurrentTime(timestamp);
 
-					if (comingFromExistingSubmission) {
-						// Not in a new submission anymore
-						comingFromExistingSubmission = false;
+				// Save preferences
+				Editor editor = prefs.edit();
+				editor.putString("firstName", firstName.getText().toString());
+				editor.putString("lastName", lastName.getText().toString());
+				editor.putString("email", email.getText().toString());
+				editor.commit();
 
-						// Store all of the information
-						e.setFirstName(firstName.getText().toString());
-						e.setLastName(lastName.getText().toString());
-						e.setEmail(email.getText().toString());
-						e.setAffiliation(affiliationSpinner.getSelectedItem()
-								.toString());
-						e.setGroup(groupSpinner.getSelectedItem().toString());
-						e.setCommonName(commonName.getText().toString());
-						e.setSpecies(species.getText().toString());
-						e.setAmount(amount.getText().toString());
-						e.setBehavorialDescription(behavorialDescription
-								.getText().toString());
-						e.setCounty(countySpinner.getSelectedItem().toString());
-						e.setObservationalTechnique(observationalSpinner
-								.getSelectedItem().toString());
-						e.setObservationalTechniqueOther(observationalTechniqueOther
-								.getText().toString());
-						e.setEcosystemType(ecosystem.getText().toString());
-						e.setAdditionalInformation(additionalInformation
-								.getText().toString());
-						e.setPrivacySetting(privacySpinner.getSelectedItem()
-								.toString());
-						e.setLatitude(latitudeEditText.getText().toString());
+				if (comingFromExistingSubmission) {
+					// Not in a new submission anymore
+					comingFromExistingSubmission = false;
 
-						e.setLongitude(longitudeEditText.getText().toString());
+					// Store all of the information
+					e.setFirstName(firstName.getText().toString());
+					e.setLastName(lastName.getText().toString());
+					e.setEmail(email.getText().toString());
+					e.setAffiliation(affiliationSpinner.getSelectedItem()
+							.toString());
+					e.setGroup(groupSpinner.getSelectedItem().toString());
+					e.setCommonName(commonName.getText().toString());
+					e.setSpecies(species.getText().toString());
+					e.setAmount(amount.getText().toString());
+					e.setBehavorialDescription(behavorialDescription.getText()
+							.toString());
+					e.setCounty(countySpinner.getSelectedItem().toString());
+					e.setObservationalTechnique(observationalSpinner
+							.getSelectedItem().toString());
+					e.setObservationalTechniqueOther(observationalTechniqueOther
+							.getText().toString());
+					e.setEcosystemType(ecosystem.getText().toString());
+					e.setAdditionalInformation(additionalInformation.getText()
+							.toString());
+					e.setPrivacySetting(privacySpinner.getSelectedItem()
+							.toString());
+					e.setLatitude(latitudeEditText.getText().toString());
 
-						e.setAltitude(altitudeEditText.getText().toString());
+					e.setLongitude(longitudeEditText.getText().toString());
 
-						// if the entry is inserted correctly, the method
-						// returns a
-						// 1
-						if (db.updateEntry(e) == 1) {
-							message = "Success";
-							Toast.makeText(c, message, Toast.LENGTH_SHORT)
-									.show();
-							clearForm();
-							ab.setSelectedNavigationItem(1);
+					e.setAltitude(altitudeEditText.getText().toString());
 
-						} else {
-							message = "Failure";
-							Toast.makeText(c, message, Toast.LENGTH_SHORT)
-									.show();
-						}
+					// if the entry is inserted correctly, the method
+					// returns a
+					// 1
+					if (db.updateEntry(e) == 1) {
+						message = "Success";
+						Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+						clearForm();
+						ab.setSelectedNavigationItem(1);
 
 					} else {
+						message = "Failure";
+						Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+					}
 
-						// Store all of the information
-						e.setFirstName(firstName.getText().toString());
-						e.setLastName(lastName.getText().toString());
-						e.setEmail(email.getText().toString());
-						e.setAffiliation(affiliationSpinner.getSelectedItem()
-								.toString());
-						e.setGroup(groupSpinner.getSelectedItem().toString());
-						e.setCommonName(commonName.getText().toString());
-						e.setSpecies(species.getText().toString());
-						e.setAmount(amount.getText().toString());
-						e.setBehavorialDescription(behavorialDescription
-								.getText().toString());
-						e.setCounty(countySpinner.getSelectedItem().toString());
-						e.setObservationalTechnique(observationalSpinner
-								.getSelectedItem().toString());
-						e.setObservationalTechniqueOther(observationalTechniqueOther
-								.getText().toString());
-						e.setEcosystemType(ecosystem.getText().toString());
-						e.setAdditionalInformation(additionalInformation
-								.getText().toString());
-						e.setPrivacySetting(privacySpinner.getSelectedItem()
-								.toString());
+				} else {
 
-						e.setLatitude(latitudeEditText.getText().toString());
+					storeInformationInFiledsToEntryObject();
 
-						e.setLongitude(longitudeEditText.getText().toString());
+					// if the entry is inserted correctly, the method
+					// returns a
+					// 1
+					if (db.insertEntry(e) == 1) {
+						message = "Success";
+						Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+						clearForm();
+						ab.setSelectedNavigationItem(1);
 
-						e.setAltitude(altitudeEditText.getText().toString());
+					} else {
+						message = "Failure";
+						Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+					}
+				}
 
-						// if the entry is inserted correctly, the method
-						// returns a
-						// 1
-						if (db.insertEntry(e) == 1) {
-							message = "Success";
-							Toast.makeText(c, message, Toast.LENGTH_SHORT)
-									.show();
-							clearForm();
-							ab.setSelectedNavigationItem(1);
+			}
+		});
 
-						} else {
-							message = "Failure";
-							Toast.makeText(c, message, Toast.LENGTH_SHORT)
-									.show();
+		// Submit to plone database
+		submitButton = (Button) getActivity().findViewById(R.id.submitButton);
+		submitButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				Log.d("D", "123456789 STARTING SUBMIT");
+				final AQuery aq = new AQuery(getActivity());
+
+				storeInformationInFiledsToEntryObject();
+
+				if (e.getFirstName().equals("")) {
+					Toast.makeText(c, "Please enter a first name",
+							Toast.LENGTH_SHORT).show();
+				} else if (e.getLastName().equals("")) {
+					Toast.makeText(c, "Please enter a last name",
+							Toast.LENGTH_SHORT).show();
+				} else if (e.getEmail().equals("")) {
+					Toast.makeText(c, "Please enter an email",
+							Toast.LENGTH_SHORT).show();
+				} else if (e.getGroup().equals("Choose a group/phyla")) {
+					Toast.makeText(c, "Please choose a group/phyla",
+							Toast.LENGTH_SHORT).show();
+				} else if (e.getAffiliation().equals("Choose an affiliation")) {
+					Toast.makeText(c, "Please choose an affiliation",
+							Toast.LENGTH_SHORT).show();
+				} else if (e.getCounty().equals("Choose a county")) {
+					Toast.makeText(c, "Please choose a county",
+							Toast.LENGTH_SHORT).show();
+				} else if (e.getObservationalTechnique().equals(
+						"Choose an observational technique")) {
+					Toast.makeText(c,
+							"Please choose an observational technique.",
+							Toast.LENGTH_SHORT).show();
+				} else if (e.getPrivacySetting().equals(
+						"Choose a privacy setting")) {
+					Toast.makeText(c, "Please choose a privacy setting",
+							Toast.LENGTH_SHORT).show();
+				} else {
+					// Send call to get user information
+					final AjaxCallback<String> cb = new AjaxCallback<String>();
+					cb.url(URL_FOR_SUBMISSION).type(String.class)
+							.weakHandler(this, "submissionCallback");
+
+					cb.header("Accept",
+							"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+					cb.header("Accept-Language", "en-US,en;q=0.5");
+					cb.header("Accept-Encoding", "gzip, deflate");
+					cb.header("Host", "plonedev.uwosh.edu");
+					cb.header("Referer",
+							"https://plonedev.uwosh.edu/zmi41/sites4/Bestiary/bestiary-submissions");
+					cb.header("Connection", "keep-alive");
+
+					cb.method(AQuery.METHOD_POST);
+
+					cb.param("first-name", e.getFirstName());
+					cb.param("last-name", e.getLastName());
+					// cb.param("weather", "");
+					cb.param("replyto", e.getEmail());
+					cb.param("topic", "Bestiary Submission");
+					cb.param("school-affiliation", e.getAffiliation());
+					cb.param("animal", e.getGroup());
+					cb.param("common-name", e.getCommonName());
+					cb.param("species", e.getSpecies());
+					cb.param("how-many-of-this-animal-did-you-see",
+							e.getAmount());
+					cb.param("behavioral-description",
+							e.getBehavorialDescription());
+					cb.param("county", e.getCounty());
+					cb.param("latitude", e.getLatitude());
+					// TODO FIX SPELLING ERROR
+					cb.param("logitude", e.getLongitude());
+					cb.param("altitude", e.getAltitude());
+					cb.param("latitude", e.getLatitude());
+					cb.param("observation-technique-1",
+							e.getObservationalTechnique());
+					cb.param("observation-technique",
+							e.getObservationalTechniqueOther());
+					cb.param("degrees-celcius", e.getTemperature());
+					cb.param("wind-speed-mph", e.getWindSpeed());
+					cb.param("wind-direction", e.getWindDirection());
+					cb.param("pressure-mbar", e.getPressure());
+					cb.param("precipitation-inches", e.getPrecipitation());
+					cb.param("ecosystem-type", e.getEcosystemType());
+					if (e.getPhotoPath() != null) {
+						if (!e.getPhotoPath().equals("")
+								&& new File(e.getPhotoPath()).exists()) {
+							cb.param("image-to-append_file",
+									new File(e.getPhotoPath()));
 						}
 					}
 
+					if (e.getAudioPath() != null) {
+						if (!e.getAudioPath().equals("")
+								&& new File(e.getAudioPath()).exists()) {
+							cb.param("audio_file", new File(e.getAudioPath()));
+						}
+					}
+
+					cb.param(
+							"specific-text-you-would-like-used-to-acknowledge-photograph-interesting-anecdote-submission",
+							e.getAdditionalInformation());
+					cb.param("agreement:list", "I agree");
+					cb.param("app-version", "mobile-android");
+					cb.param("device", "mobile-android");
+					cb.param("fieldset", "default");
+					cb.param("_authenticator",
+							"6b9ec1bdad9b1656f6ebf3720017d3c9118ed11f");
+					cb.param("form_submit", "Submit");
+					Log.d("D", "123456789 RIGHT BEFORE FIRST SUBMIT");
+					if (e.getPhotoTime() != null) {
+						Log.d("D", "123456789 1");
+						if (!e.getPhotoTime().equals("")) {
+							Log.d("D", "123456789 2");
+							try {
+								Log.d("D", "123456789 5");
+								String[] photoTime = e.getPhotoTime()
+										.split("-");
+								cb.param("date-photo-was-taken",
+										e.getPhotoTime());
+								cb.param("date-photo-was-taken_year",
+										photoTime[0]);
+								cb.param("date-photo-was-taken_month",
+										photoTime[1]);
+								cb.param("date-photo-was-taken_day",
+										photoTime[2]);
+
+
+
+								prgDialog = new ProgressDialog(getActivity());
+								prgDialog.setCancelable(false);
+								prgDialog.setTitle("Submitting");
+								// Display Progress Dialog Bar by invoking
+								// progress method
+								aq.progress(prgDialog).ajax(cb);
+
+							} catch (Exception e1) {
+								Log.d("D", "123456789 6");
+
+								new AlertDialog.Builder(c)
+										.setTitle(
+												"Missing date for photograph/sighting")
+										.setMessage(
+												"Click okay to enter a best guess for the day when the photo/sighting occured")
+										.setPositiveButton(
+												android.R.string.ok,
+												new DialogInterface.OnClickListener() {
+													public void onClick(
+															DialogInterface dialog,
+															int which) {
+														final Calendar cal = Calendar
+																.getInstance();
+														int mYear = cal
+																.get(Calendar.YEAR);
+														int mMonth = cal
+																.get(Calendar.MONTH);
+														int mDay = cal
+																.get(Calendar.DAY_OF_MONTH);
+
+														DatePickerDialog dpd = new DatePickerDialog(
+																c,
+																new DatePickerDialog.OnDateSetListener() {
+
+																	@Override
+																	public void onDateSet(
+																			DatePicker view,
+																			int year,
+																			int monthOfYear,
+																			int dayOfMonth) {
+																		e.setPhotoTime(year
+																				+ ":"
+																				+ (monthOfYear + 1)
+																				+ ":"
+																				+ dayOfMonth
+																				+ ":0:0:0");
+
+																		prgDialog = new ProgressDialog(
+																				getActivity());
+																		prgDialog
+																				.setCancelable(false);
+																		prgDialog
+																				.setTitle("Submitting");
+																		// Display
+																		// Progress
+																		// Dialog
+																		// Bar
+																		// by
+																		// invoking
+																		// progress
+																		// method
+																		aq.progress(
+																				prgDialog)
+																				.ajax(cb);
+																	}
+																}, mYear,
+																mMonth, mDay);
+														dpd.show();
+													}
+												})
+										.setNegativeButton(
+												android.R.string.cancel,
+												new DialogInterface.OnClickListener() {
+													public void onClick(
+															DialogInterface dialog,
+															int which) {
+														e.setPhotoTime("Unavailable");
+													}
+												})
+										.setIcon(
+												android.R.drawable.ic_dialog_alert)
+										.show();
+							}
+
+						} else {
+							Log.d("D", "123456789 3");
+
+							new AlertDialog.Builder(c)
+									.setTitle(
+											"Missing date for photograph/sighting")
+									.setMessage(
+											"Click okay to enter a best guess for the day when the photo/sighting occured")
+									.setPositiveButton(
+											android.R.string.ok,
+											new DialogInterface.OnClickListener() {
+												public void onClick(
+														DialogInterface dialog,
+														int which) {
+													final Calendar cal = Calendar
+															.getInstance();
+													int mYear = cal
+															.get(Calendar.YEAR);
+													int mMonth = cal
+															.get(Calendar.MONTH);
+													int mDay = cal
+															.get(Calendar.DAY_OF_MONTH);
+
+													DatePickerDialog dpd = new DatePickerDialog(
+															c,
+															new DatePickerDialog.OnDateSetListener() {
+
+																@Override
+																public void onDateSet(
+																		DatePicker view,
+																		int year,
+																		int monthOfYear,
+																		int dayOfMonth) {
+																	e.setPhotoTime(year
+																			+ ":"
+																			+ (monthOfYear + 1)
+																			+ ":"
+																			+ dayOfMonth
+																			+ ":0:0:0");
+
+																	prgDialog = new ProgressDialog(
+																			getActivity());
+																	prgDialog
+																			.setCancelable(false);
+																	prgDialog
+																			.setTitle("Submitting");
+																	// Display
+																	// Progress
+																	// Dialog
+																	// Bar by
+																	// invoking
+																	// progress
+																	// method
+																	aq.progress(
+																			prgDialog)
+																			.ajax(cb);
+																}
+															}, mYear, mMonth,
+															mDay);
+													dpd.show();
+												}
+											})
+									.setNegativeButton(
+											android.R.string.cancel,
+											new DialogInterface.OnClickListener() {
+												public void onClick(
+														DialogInterface dialog,
+														int which) {
+													e.setPhotoTime("Unavailable");
+
+													prgDialog = new ProgressDialog(
+															getActivity());
+													prgDialog
+															.setCancelable(false);
+													prgDialog
+															.setTitle("Submitting");
+													// Display Progress Dialog
+													// Bar by invoking progress
+													// method
+													aq.progress(prgDialog)
+															.ajax(cb);
+												}
+											})
+									.setIcon(android.R.drawable.ic_dialog_alert)
+									.show();
+
+						}
+					} else {
+						Log.d("D", "123456789 4");
+						new AlertDialog.Builder(c)
+								.setTitle(
+										"Missing date for photograph/sighting")
+								.setMessage(
+										"Click okay to enter a best guess for the day when the photo/sighting occured")
+								.setPositiveButton(android.R.string.ok,
+										new DialogInterface.OnClickListener() {
+											public void onClick(
+													DialogInterface dialog,
+													int which) {
+												final Calendar cal = Calendar
+														.getInstance();
+												int mYear = cal
+														.get(Calendar.YEAR);
+												int mMonth = cal
+														.get(Calendar.MONTH);
+												int mDay = cal
+														.get(Calendar.DAY_OF_MONTH);
+
+												DatePickerDialog dpd = new DatePickerDialog(
+														c,
+														new DatePickerDialog.OnDateSetListener() {
+
+															@Override
+															public void onDateSet(
+																	DatePicker view,
+																	int year,
+																	int monthOfYear,
+																	int dayOfMonth) {
+																e.setPhotoTime(year
+																		+ ":"
+																		+ (monthOfYear + 1)
+																		+ ":"
+																		+ dayOfMonth
+																		+ ":0:0:0");
+
+																prgDialog = new ProgressDialog(
+																		getActivity());
+																prgDialog
+																		.setCancelable(false);
+																prgDialog
+																		.setTitle("Submitting");
+																// Display
+																// Progress
+																// Dialog Bar by
+																// invoking
+																// progress
+																// method
+																aq.progress(
+																		prgDialog)
+																		.ajax(cb);
+															}
+														}, mYear, mMonth, mDay);
+												dpd.show();
+											}
+										})
+								.setNegativeButton(android.R.string.cancel,
+										new DialogInterface.OnClickListener() {
+											public void onClick(
+													DialogInterface dialog,
+													int which) {
+												e.setPhotoTime("Unavailable");
+
+												prgDialog = new ProgressDialog(
+														getActivity());
+												prgDialog.setCancelable(false);
+												prgDialog
+														.setTitle("Submitting");
+												// Display Progress Dialog Bar
+												// by invoking progress method
+												aq.progress(prgDialog).ajax(cb);
+											}
+										})
+								.setIcon(android.R.drawable.ic_dialog_alert)
+								.show();
+
+					}
 
 				}
 
@@ -767,6 +1127,33 @@ public class NewSubmission extends Fragment implements LocationListener {
 		imageFileUri = null;
 		videoFileUri = null;
 
+	}
+
+	public void submissionCallback(String url, String response,
+			AjaxStatus status) {
+		Log.d("this is the url", url);
+
+		if (response != null) {
+			Log.d("res", response);
+			// Remove item from database
+			String message;
+			if (db.removeEntry(e) == 1) {
+				message = "Successfully deleted";
+				Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+				clearForm();
+				ab.setSelectedNavigationItem(1);
+
+			} else {
+				message = "Failure";
+				Toast.makeText(c, message, Toast.LENGTH_SHORT).show();
+			}
+
+		} else {
+			Toast.makeText(
+					c,
+					"There was an error submitting your sighting. Try again later",
+					Toast.LENGTH_LONG).show();
+		}
 	}
 
 	boolean isDouble(String str) {
@@ -1383,7 +1770,15 @@ public class NewSubmission extends Fragment implements LocationListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		e.setPhotoTime(exif.getAttribute(ExifInterface.TAG_DATETIME));
+		if (exif.getAttribute(ExifInterface.TAG_DATETIME) != null) {
+			e.setPhotoTime(exif.getAttribute(ExifInterface.TAG_DATETIME));
+		} else {
+			e.setPhotoTime("");
+		}
+
+		Log.d("D",
+				"SETTING PHOTO TIME "
+						+ exif.getAttribute(ExifInterface.TAG_DATETIME));
 	}
 
 	public void setVideoTime() {
@@ -1392,16 +1787,20 @@ public class NewSubmission extends Fragment implements LocationListener {
 
 		String metadataDate = metaRetriver
 				.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
-		String year = metadataDate.substring(0, 4);
-		String month = metadataDate.substring(4, 6);
-		String day = metadataDate.substring(6, 8);
 
-		String hour = metadataDate.substring(9, 11);
-		String minute = metadataDate.substring(11, 13);
-		String second = metadataDate.substring(13, 15);
+		if (metadataDate != null) {
+			String year = metadataDate.substring(0, 4);
+			String month = metadataDate.substring(4, 6);
+			String day = metadataDate.substring(6, 8);
 
-		e.setVideoTime(year + ":" + month + ":" + day + " " + hour + ":"
-				+ minute + ":" + second);
+			String hour = metadataDate.substring(9, 11);
+			String minute = metadataDate.substring(11, 13);
+			String second = metadataDate.substring(13, 15);
+
+			e.setVideoTime(year + ":" + month + ":" + day + " " + hour + ":"
+					+ minute + ":" + second);
+		}
+
 	}
 
 	public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
@@ -1425,9 +1824,9 @@ public class NewSubmission extends Fragment implements LocationListener {
 		capturedPicture.setImageDrawable(getResources().getDrawable(
 				android.R.drawable.ic_menu_gallery));
 
-		// No need to set anything with the audio. This is handled with the e being set to new entry
+		// No need to set anything with the audio. This is handled with the e
+		// being set to new entry
 		audioStatus.setText("Not Recorded");
-		
 
 		firstName.setText("");
 		lastName.setText("");
@@ -1463,4 +1862,34 @@ public class NewSubmission extends Fragment implements LocationListener {
 		altitude = 0;
 
 	}
+
+	private void storeInformationInFiledsToEntryObject() {
+
+		// Store all of the information
+		e.setFirstName(firstName.getText().toString());
+		e.setLastName(lastName.getText().toString());
+		e.setEmail(email.getText().toString());
+		e.setAffiliation(affiliationSpinner.getSelectedItem().toString());
+		e.setGroup(groupSpinner.getSelectedItem().toString());
+		e.setCommonName(commonName.getText().toString());
+		e.setSpecies(species.getText().toString());
+		e.setAmount(amount.getText().toString());
+		e.setBehavorialDescription(behavorialDescription.getText().toString());
+		e.setCounty(countySpinner.getSelectedItem().toString());
+		e.setObservationalTechnique(observationalSpinner.getSelectedItem()
+				.toString());
+		e.setObservationalTechniqueOther(observationalTechniqueOther.getText()
+				.toString());
+		e.setEcosystemType(ecosystem.getText().toString());
+		e.setAdditionalInformation(additionalInformation.getText().toString());
+		e.setPrivacySetting(privacySpinner.getSelectedItem().toString());
+
+		e.setLatitude(latitudeEditText.getText().toString());
+
+		e.setLongitude(longitudeEditText.getText().toString());
+
+		e.setAltitude(altitudeEditText.getText().toString());
+
+	}
+
 }
