@@ -1,22 +1,53 @@
 package com.example.uwoshkoshbestiary;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.androidquery.AQuery;
+import com.androidquery.callback.AbstractAjaxCallback;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.ResponseHandlerInterface;
 
 import database.DatabaseHelper;
 import database.Entry;
@@ -73,8 +104,9 @@ import android.provider.MediaStore;
 
 public class NewSubmission extends Fragment implements LocationListener {
 
-	private final String URL_FOR_SUBMISSION = "https://plonedev.uwosh.edu/zmi41/sites4/Bestiary/bestiary-submissions";
-
+	//private final String URL_FOR_SUBMISSION = "https://plonedev.uwosh.edu/zmi41/sites4/Bestiary/bestiary-submissions";
+	private final String URL_FOR_SUBMISSION = "http://awisconsinbestiary.org/submissions/";
+	//private final String URL_FOR_SUBMISSION = "http://awisconsinbestiary.org/simpleform/";
 	// Shared preferences
 	SharedPreferences prefs;
 
@@ -85,7 +117,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 	private ScrollView sv;
 	private Spinner privacySpinner;
 	private Spinner observationalSpinner;
-	private Spinner countySpinner;
+	private Spinner countySpinner; 
 	private Spinner groupSpinner;
 	private Spinner affiliationSpinner;
 	private Button photoVideoButton;
@@ -120,6 +152,8 @@ public class NewSubmission extends Fragment implements LocationListener {
 	public static final int GALLERY_CHOSEN_VIDEO = 2;
 	public static final int GALLERY_KITKAT_INTENT_CALLED_IMAGE = 1337;
 	public static final int GALLERY_KITKAT_INTENT_CALLED_VIDEO = 1338;
+	
+	boolean first = false;
 
 	// Path for image/video. I store thet old Uri so if the user records a new
 	// video/image, the old one will be deleted
@@ -745,6 +779,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 				final AQuery aq = new AQuery(getActivity());
 
 				storeInformationInFiledsToEntryObject();
+				Map<String, Object> params = new HashMap<String, Object>();
 
 				if (e.getFirstName().equals("")) {
 					Toast.makeText(c, "Please enter a first name",
@@ -774,105 +809,123 @@ public class NewSubmission extends Fragment implements LocationListener {
 					Toast.makeText(c, "Please choose a privacy setting",
 							Toast.LENGTH_SHORT).show();
 				} else {
-					// Send call to get user information
-					final AjaxCallback<String> cb = new AjaxCallback<String>();
-					cb.url(URL_FOR_SUBMISSION).type(String.class)
-							.weakHandler(this, "submissionCallback");
+					
+					prgDialog = new ProgressDialog(
+							getActivity());
+					prgDialog.setCancelable(false);
+					prgDialog
+							.setTitle("Submitting");
+				
 
-					cb.header("Accept",
-							"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-					cb.header("Accept-Language", "en-US,en;q=0.5");
-					cb.header("Accept-Encoding", "gzip, deflate");
-					cb.header("Host", "plonedev.uwosh.edu");
-					cb.header("Referer",
-							"https://plonedev.uwosh.edu/zmi41/sites4/Bestiary/bestiary-submissions");
-					cb.header("Connection", "keep-alive");
+					final MultipartEntityBuilder builder = MultipartEntityBuilder.create();    
+					/* example for setting a HttpMultipartMode */
+					builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);   
+					builder.setCharset(Charset.forName(HTTP.UTF_8));
 
-					cb.method(AQuery.METHOD_POST);
 
-					cb.param("first-name", e.getFirstName());
-					cb.param("last-name", e.getLastName());
-					// cb.param("weather", "");
-					cb.param("replyto", e.getEmail());
-					cb.param("topic", "Bestiary Submission");
-					cb.param("school-affiliation", e.getAffiliation());
-					cb.param("animal", e.getGroup());
-					cb.param("common-name", e.getCommonName());
-					cb.param("species", e.getSpecies());
-					cb.param("how-many-of-this-animal-did-you-see",
-							e.getAmount());
-					cb.param("behavioral-description",
-							e.getBehavorialDescription());
-					cb.param("county", e.getCounty());
-					cb.param("latitude", e.getLatitude());
+
+					builder.addTextBody("replyto", e.getEmail(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("first-name", e.getFirstName(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("last-name", e.getLastName(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("topic", "Bestiary Submission",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("school-affiliation", e.getAffiliation(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("animal", "ameba",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("common-name", e.getCommonName(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("species", e.getSpecies(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("how-many-of-this-animal-did-you-see",
+							e.getAmount(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("behavioral-description",
+							e.getBehavorialDescription(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("county", e.getCounty(),ContentType.MULTIPART_FORM_DATA);
 					// TODO FIX SPELLING ERROR
-					cb.param("logitude", e.getLongitude());
-					cb.param("altitude", e.getAltitude());
-					cb.param("latitude", e.getLatitude());
-					cb.param("observation-technique-1",
-							e.getObservationalTechnique());
-					cb.param("observation-technique",
-							e.getObservationalTechniqueOther());
-					cb.param("degrees-celcius", e.getTemperature());
-					cb.param("wind-speed-mph", e.getWindSpeed());
-					cb.param("wind-direction", e.getWindDirection());
-					cb.param("pressure-mbar", e.getPressure());
-					cb.param("precipitation-inches", e.getPrecipitation());
-					cb.param("ecosystem-type", e.getEcosystemType());
+					builder.addTextBody("logitude", e.getLongitude(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("altitude", e.getAltitude(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("latitude", e.getLatitude(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("observation-technique-1",
+							e.getObservationalTechnique(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("observation-technique",
+							e.getObservationalTechniqueOther(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("degrees-celcius", e.getTemperature(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("wind-speed-mph", e.getWindSpeed(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("wind-direction", e.getWindDirection(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("pressure-mbar", e.getPressure(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("precipitation-inches", e.getPrecipitation(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("ecosystem-type", e.getEcosystemType(),ContentType.MULTIPART_FORM_DATA);
 					if (e.getPhotoPath() != null) {
 						if (!e.getPhotoPath().equals("")
 								&& new File(e.getPhotoPath()).exists()) {
-							cb.param("image-to-append_file",
-									new File(e.getPhotoPath()));
+							Log.d("D","123456789 MAKING SURE");
+							final File file = new File(e.getPhotoPath());
+						    
+						    builder.addBinaryBody("image-to-append_file", file, ContentType.create("application/octet-stream"), file.getName());
+
 						}
 					}
 
 					if (e.getAudioPath() != null) {
 						if (!e.getAudioPath().equals("")
 								&& new File(e.getAudioPath()).exists()) {
-							cb.param("audio_file", new File(e.getAudioPath()));
+							Log.d("D","123456789 MAKING SURE2");
+							final File file = new File(e.getAudioPath());
+						    builder.addBinaryBody("audio_file", file, ContentType.create("application/octet-stream"), file.getName());
+
 						}
 					}
 
-					cb.param(
+					builder.addTextBody(
 							"specific-text-you-would-like-used-to-acknowledge-photograph-interesting-anecdote-submission",
-							e.getAdditionalInformation());
-					cb.param("agreement:list", "I agree");
-					cb.param("app-version", "mobile-android");
-					cb.param("device", "mobile-android");
-					cb.param("fieldset", "default");
-					cb.param("_authenticator",
-							"6b9ec1bdad9b1656f6ebf3720017d3c9118ed11f");
-					cb.param("form_submit", "Submit");
+							e.getAdditionalInformation(),ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("last_referer","http://awisconsinbestiary.org/WisconsinBeastiary/front-page",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("agreement:list", "I agree",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("app-version", "1",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("topic", "Bestiary Submission",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("device", android.os.Build.MODEL,ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("fieldset", "default",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("add_reference.field:record", "default",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("add_reference.type:record", "",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("add_reference.destination:record", "",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("weather", "",ContentType.MULTIPART_FORM_DATA);
+
+					builder.addTextBody("form.submitted", "1",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("_authenticator",
+							"6b9ec1bdad9b1656f6ebf3720017d3c9118ed11f",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("form_submit", "Submit",ContentType.MULTIPART_FORM_DATA);
 					Log.d("D", "123456789 RIGHT BEFORE FIRST SUBMIT");
-					if (e.getPhotoTime() != null) {
+					if (e.getPhotoTime() != null && !e.getPhotoTime().equals("")) {
 						Log.d("D", "123456789 1");
-						if (!e.getPhotoTime().equals("")) {
 							Log.d("D", "123456789 2");
 							try {
-								Log.d("D", "123456789 5");
-								String[] photoTime = e.getPhotoTime()
-										.split("-");
-								cb.param("date-photo-was-taken",
-										e.getPhotoTime());
-								cb.param("date-photo-was-taken_year",
-										photoTime[0]);
-								cb.param("date-photo-was-taken_month",
-										photoTime[1]);
-								cb.param("date-photo-was-taken_day",
-										photoTime[2]);
 
+								String[] photoTime = e.getPhotoTime().split("-");
+								
+								
+								Log.d("D","123456789 CHECKING THE TIMES " + photoTime[0] + " " +photoTime[1] + " " +photoTime[2]+ " " + photoTime[3] + " " +photoTime[4]);
+								builder.addTextBody("date-photo-was-taken","",ContentType.MULTIPART_FORM_DATA);
+								builder.addTextBody("date-photo-was-taken_year",photoTime[0],ContentType.MULTIPART_FORM_DATA);
+								builder.addTextBody("date-photo-was-taken_month",photoTime[1],ContentType.MULTIPART_FORM_DATA);
+								builder.addTextBody("date-photo-was-taken_day",photoTime[2],ContentType.MULTIPART_FORM_DATA);
+								builder.addTextBody("date-photo-was-taken_minute",photoTime[4],ContentType.MULTIPART_FORM_DATA);
 
+								
+								if(Integer.parseInt(photoTime[3]) > 12){
+									int x = Integer.parseInt(photoTime[3])-12;
+									builder.addTextBody("date-photo-was-taken_hour",x+"",ContentType.MULTIPART_FORM_DATA);
 
-								prgDialog = new ProgressDialog(getActivity());
-								prgDialog.setCancelable(false);
-								prgDialog.setTitle("Submitting");
-								// Display Progress Dialog Bar by invoking
-								// progress method
-								aq.progress(prgDialog).ajax(cb);
+									builder.addTextBody("date-photo-was-taken_ampm","PM",ContentType.MULTIPART_FORM_DATA);
+
+								}else{
+									builder.addTextBody("date-photo-was-taken_day",photoTime[3],ContentType.MULTIPART_FORM_DATA);
+
+									builder.addTextBody("date-photo-was-taken_ampm","AM",ContentType.MULTIPART_FORM_DATA);
+								}
+								
+																
+								new AsyncSubmission().execute(builder);
+
+								 
 
 							} catch (Exception e1) {
-								Log.d("D", "123456789 6");
+								Log.d("D", "123456789 SOMETHING WENT WRONG");
 
 								new AlertDialog.Builder(c)
 										.setTitle(
@@ -910,24 +963,29 @@ public class NewSubmission extends Fragment implements LocationListener {
 																				+ ":"
 																				+ dayOfMonth
 																				+ ":0:0:0");
+																		if(view.isShown()){
+																			String[] photoTime = e.getPhotoTime().split(":");
+																			builder.addTextBody("date-photo-was-taken","",ContentType.MULTIPART_FORM_DATA);
+																			builder.addTextBody("date-photo-was-taken_year",photoTime[0],ContentType.MULTIPART_FORM_DATA);
+																			builder.addTextBody("date-photo-was-taken_month",photoTime[1],ContentType.MULTIPART_FORM_DATA);
+																			builder.addTextBody("date-photo-was-taken_day",photoTime[2],ContentType.MULTIPART_FORM_DATA);
+																			builder.addTextBody("date-photo-was-taken_hour",photoTime[3],ContentType.MULTIPART_FORM_DATA);
+																			builder.addTextBody("date-photo-was-taken_minute",photoTime[4],ContentType.MULTIPART_FORM_DATA);
+																			
+																			if(Integer.parseInt(photoTime[3]) > 12){
+																				builder.addTextBody("date-photo-was-taken_ampm","PM",ContentType.MULTIPART_FORM_DATA);
 
-																		prgDialog = new ProgressDialog(
-																				getActivity());
-																		prgDialog
-																				.setCancelable(false);
-																		prgDialog
-																				.setTitle("Submitting");
-																		// Display
-																		// Progress
-																		// Dialog
-																		// Bar
-																		// by
-																		// invoking
-																		// progress
-																		// method
-																		aq.progress(
-																				prgDialog)
-																				.ajax(cb);
+																			}else{
+																				builder.addTextBody("date-photo-was-taken_ampm","AM",ContentType.MULTIPART_FORM_DATA);
+																			}
+																			
+																			  
+																			  
+																			Log.d("D","123456789 RIGHT BEFORE THE LAST SUBMIT");
+																			new AsyncSubmission().execute(builder);
+																		}
+
+
 																	}
 																}, mYear,
 																mMonth, mDay);
@@ -940,101 +998,35 @@ public class NewSubmission extends Fragment implements LocationListener {
 													public void onClick(
 															DialogInterface dialog,
 															int which) {
-														e.setPhotoTime("Unavailable");
+														e.setPhotoTime("2000"
+																+ ":"
+																+ "01"
+																+ ":"
+																+ "01"
+																+ ":0:0:0");
+														if(view.isShown()){
+															String[] photoTime = e.getPhotoTime().split(":");
+															builder.addTextBody("date-photo-was-taken","",ContentType.MULTIPART_FORM_DATA);
+															builder.addTextBody("date-photo-was-taken_year",photoTime[0],ContentType.MULTIPART_FORM_DATA);
+															builder.addTextBody("date-photo-was-taken_month",photoTime[1],ContentType.MULTIPART_FORM_DATA);
+															builder.addTextBody("date-photo-was-taken_day",photoTime[2],ContentType.MULTIPART_FORM_DATA);
+															builder.addTextBody("date-photo-was-taken_hour",photoTime[3],ContentType.MULTIPART_FORM_DATA);
+															builder.addTextBody("date-photo-was-taken_minute",photoTime[4],ContentType.MULTIPART_FORM_DATA);
+															
+															if(Integer.parseInt(photoTime[3]) > 12){
+																builder.addTextBody("date-photo-was-taken_ampm","PM",ContentType.MULTIPART_FORM_DATA);
+
+															}else{
+																builder.addTextBody("date-photo-was-taken_ampm","AM",ContentType.MULTIPART_FORM_DATA);
+															}
+													}
+														
 													}
 												})
 										.setIcon(
 												android.R.drawable.ic_dialog_alert)
 										.show();
 							}
-
-						} else {
-							Log.d("D", "123456789 3");
-
-							new AlertDialog.Builder(c)
-									.setTitle(
-											"Missing date for photograph/sighting")
-									.setMessage(
-											"Click okay to enter a best guess for the day when the photo/sighting occured")
-									.setPositiveButton(
-											android.R.string.ok,
-											new DialogInterface.OnClickListener() {
-												public void onClick(
-														DialogInterface dialog,
-														int which) {
-													final Calendar cal = Calendar
-															.getInstance();
-													int mYear = cal
-															.get(Calendar.YEAR);
-													int mMonth = cal
-															.get(Calendar.MONTH);
-													int mDay = cal
-															.get(Calendar.DAY_OF_MONTH);
-
-													DatePickerDialog dpd = new DatePickerDialog(
-															c,
-															new DatePickerDialog.OnDateSetListener() {
-
-																@Override
-																public void onDateSet(
-																		DatePicker view,
-																		int year,
-																		int monthOfYear,
-																		int dayOfMonth) {
-																	e.setPhotoTime(year
-																			+ ":"
-																			+ (monthOfYear + 1)
-																			+ ":"
-																			+ dayOfMonth
-																			+ ":0:0:0");
-
-																	prgDialog = new ProgressDialog(
-																			getActivity());
-																	prgDialog
-																			.setCancelable(false);
-																	prgDialog
-																			.setTitle("Submitting");
-																	// Display
-																	// Progress
-																	// Dialog
-																	// Bar by
-																	// invoking
-																	// progress
-																	// method
-																	aq.progress(
-																			prgDialog)
-																			.ajax(cb);
-																}
-															}, mYear, mMonth,
-															mDay);
-													dpd.show();
-												}
-											})
-									.setNegativeButton(
-											android.R.string.cancel,
-											new DialogInterface.OnClickListener() {
-												public void onClick(
-														DialogInterface dialog,
-														int which) {
-													e.setPhotoTime("Unavailable");
-
-													prgDialog = new ProgressDialog(
-															getActivity());
-													prgDialog
-															.setCancelable(false);
-													prgDialog
-															.setTitle("Submitting");
-													// Display Progress Dialog
-													// Bar by invoking progress
-													// method
-													aq.progress(prgDialog)
-															.ajax(cb);
-												}
-											})
-									.setIcon(android.R.drawable.ic_dialog_alert)
-									.show();
-
-						}
 					} else {
 						Log.d("D", "123456789 4");
 						new AlertDialog.Builder(c)
@@ -1072,22 +1064,28 @@ public class NewSubmission extends Fragment implements LocationListener {
 																		+ ":"
 																		+ dayOfMonth
 																		+ ":0:0:0");
+																if(view.isShown()){
+																	String[] photoTime = e.getPhotoTime().split(":");
+																	builder.addTextBody("date-photo-was-taken","",ContentType.MULTIPART_FORM_DATA);
+																	builder.addTextBody("date-photo-was-taken_year",photoTime[0],ContentType.MULTIPART_FORM_DATA);
+																	builder.addTextBody("date-photo-was-taken_month",photoTime[1],ContentType.MULTIPART_FORM_DATA);
+																	builder.addTextBody("date-photo-was-taken_day",photoTime[2],ContentType.MULTIPART_FORM_DATA);
+																	builder.addTextBody("date-photo-was-taken_hour",photoTime[3],ContentType.MULTIPART_FORM_DATA);
+																	builder.addTextBody("date-photo-was-taken_minute",photoTime[4],ContentType.MULTIPART_FORM_DATA);
+																	
+																	if(Integer.parseInt(photoTime[3]) > 12){
+																		builder.addTextBody("date-photo-was-taken_ampm","PM",ContentType.MULTIPART_FORM_DATA);
 
-																prgDialog = new ProgressDialog(
-																		getActivity());
-																prgDialog
-																		.setCancelable(false);
-																prgDialog
-																		.setTitle("Submitting");
-																// Display
-																// Progress
-																// Dialog Bar by
-																// invoking
-																// progress
-																// method
-																aq.progress(
-																		prgDialog)
-																		.ajax(cb);
+																	}else{
+																		builder.addTextBody("date-photo-was-taken_ampm","AM",ContentType.MULTIPART_FORM_DATA);
+																	}
+																	
+																	  
+																	  
+																	Log.d("D","123456789 RIGHT BEFORE THE LAST SUBMIT");
+																	new AsyncSubmission().execute(builder);
+																}
+																
 															}
 														}, mYear, mMonth, mDay);
 												dpd.show();
@@ -1098,16 +1096,29 @@ public class NewSubmission extends Fragment implements LocationListener {
 											public void onClick(
 													DialogInterface dialog,
 													int which) {
-												e.setPhotoTime("Unavailable");
+												e.setPhotoTime("2000"
+														+ ":"
+														+ "01"
+														+ ":"
+														+ "01"
+														+ ":0:0:0");
+												if(view.isShown()){
+													String[] photoTime = e.getPhotoTime().split(":");
+													builder.addTextBody("date-photo-was-taken","",ContentType.MULTIPART_FORM_DATA);
+													builder.addTextBody("date-photo-was-taken_year",photoTime[0],ContentType.MULTIPART_FORM_DATA);
+													builder.addTextBody("date-photo-was-taken_month",photoTime[1],ContentType.MULTIPART_FORM_DATA);
+													builder.addTextBody("date-photo-was-taken_day",photoTime[2],ContentType.MULTIPART_FORM_DATA);
+													builder.addTextBody("date-photo-was-taken_hour",photoTime[3],ContentType.MULTIPART_FORM_DATA);
+													builder.addTextBody("date-photo-was-taken_minute",photoTime[4],ContentType.MULTIPART_FORM_DATA);
+													
+													if(Integer.parseInt(photoTime[3]) > 12){
+														builder.addTextBody("date-photo-was-taken_ampm","PM",ContentType.MULTIPART_FORM_DATA);
 
-												prgDialog = new ProgressDialog(
-														getActivity());
-												prgDialog.setCancelable(false);
-												prgDialog
-														.setTitle("Submitting");
-												// Display Progress Dialog Bar
-												// by invoking progress method
-												aq.progress(prgDialog).ajax(cb);
+													}else{
+														builder.addTextBody("date-photo-was-taken_ampm","AM",ContentType.MULTIPART_FORM_DATA);
+													}
+											}
+
 											}
 										})
 								.setIcon(android.R.drawable.ic_dialog_alert)
@@ -1126,12 +1137,15 @@ public class NewSubmission extends Fragment implements LocationListener {
 		oldVideoFileUri = null;
 		imageFileUri = null;
 		videoFileUri = null;
+		
 
 	}
+	
+
 
 	public void submissionCallback(String url, String response,
 			AjaxStatus status) {
-		Log.d("this is the url", url);
+		Log.d("D", "123456789 INSIDE CALLBACK");
 
 		if (response != null) {
 			Log.d("res", response);
@@ -1889,7 +1903,123 @@ public class NewSubmission extends Fragment implements LocationListener {
 		e.setLongitude(longitudeEditText.getText().toString());
 
 		e.setAltitude(altitudeEditText.getText().toString());
+		
+		if(e.getTemperature()==null){
+			e.setTemperature("");
+		}
+		if(e.getWindSpeed()==null){
+			e.setWindSpeed("");
+		}
+		if(e.getWindDirection()==null){
+			e.setWindDirection("");
+		}
+		if(e.getPressure()==null){
+			e.setPressure("");
+		}
+		if(e.getPrecipitation()==null){
+			e.setPrecipitation("");
+		}
+		
+		
 
+	}
+	
+	// Class that makes an Async call to the open weather api to return the
+	// weather
+	public class AsyncSubmission extends AsyncTask<MultipartEntityBuilder, Context, String> {
+		
+		@Override
+		protected void onPreExecute() {
+			prgDialog.show();
+		}
+
+
+		@Override
+		protected String doInBackground(MultipartEntityBuilder... url) {
+
+			MultipartEntityBuilder b = url[0];
+
+			HttpClient client = new DefaultHttpClient();
+		    HttpPost post = new HttpPost(URL_FOR_SUBMISSION);
+			HttpClient httpclient = new DefaultHttpClient();
+
+			httpclient.getParams().setParameter("Connection", "Keep-Alive");
+			httpclient.getParams().setParameter("Content-Type", "multipart/form-data;");
+			httpclient.getParams().setParameter("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+			httpclient.getParams().setParameter("Accept-Language", "en-US,en;q=0.5");
+			httpclient.getParams().setParameter("Referer","http://awisconsinbestiary.org/submissions");
+
+			post.setEntity(b.build());
+			HttpResponse response = null;
+			String responseBody = "";
+			try {
+				response = httpclient.execute(post);
+			   responseBody = EntityUtils.toString(response.getEntity());
+
+			} catch (ClientProtocolException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			return responseBody;
+
+
+		}
+
+		@Override
+		protected void onPostExecute(String jsonValue) {
+			prgDialog.hide();
+			// PARSE JSON VALUES
+			// Gson gson = new Gson();
+			// Weather w = gson.fromJson(jsonValue,Weather.class);
+			Log.d("D","123456789 IN POST EXECUTE " + jsonValue);
+			
+			//deleteAudioFileIfExists();
+			//deleteImageFileIfExists();
+			db.removeEntry(e);
+			clearForm();
+			
+			
+/*			try {
+	            File root = Environment.getExternalStorageDirectory();
+	            if (root.canWrite()) {
+	                File gpslogfile = new File(root, "log_new_1234567.html");
+	                
+	                if(gpslogfile.exists()){
+	                	gpslogfile.delete();
+	                }
+	                
+	                FileWriter gpswriter = new FileWriter(gpslogfile, true);
+	                BufferedWriter out = new BufferedWriter(gpswriter);
+	                out.append(jsonValue);
+	                out.close();
+	            }
+	        } catch (IOException e) {
+	            Log.d("Log: ", "Could not write file " + e.getMessage());
+	        }*/
+		}
+
+
+	}
+	
+	public void deleteAudioFileIfExists(){
+		if(e.getAudioPath()!= null && !e.getAudioPath().equals("")){
+			File temp = new File(e.getAudioPath());
+			if (temp.exists()){
+				temp.delete();
+			}
+		}
+	}
+	
+	public void deleteImageFileIfExists(){
+		if(e.getPhotoPath()!= null && !e.getPhotoPath().equals("")){
+			File temp = new File(e.getPhotoPath());
+			if (temp.exists()){
+				temp.delete();
+			}
+		}
 	}
 
 }

@@ -121,7 +121,7 @@
     </string-array>
     <string-array name="affiliation_array">
         <item>Choose an affiliation</item>
-        <item>UW Oshkosh</item>
+        <item>University of Wisconsin - Oshkosh</item>
         <item>Other</item>
     </string-array>
     <string-array name="privacy_array">
