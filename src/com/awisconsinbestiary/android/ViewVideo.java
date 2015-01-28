@@ -1,4 +1,4 @@
-package com.example.uwoshkoshbestiary;
+package com.awisconsinbestiary.android;
 
 import android.app.Activity;
 import android.content.Intent;

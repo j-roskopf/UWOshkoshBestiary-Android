@@ -6,7 +6,7 @@
     android:paddingLeft="12dp"
     android:paddingRight="12dp"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.uwoshkoshbestiary.NewSubmission$PlaceholderFragment"
+    tools:context="com.awisconsinbestiary.android.NewSubmission$PlaceholderFragment"
      >
 	
     <CheckBox
@@ -42,17 +42,7 @@
             android:background="@drawable/button"
             android:textColor="@android:color/white"
             android:layout_marginRight="2dp"
-            android:text="Add Photo/Video" />
-
-        <Button
-            android:id="@+id/viewVideo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight=".3"
-            android:background="@drawable/button"
-            android:layout_marginLeft="2dp"
-            android:textColor="@android:color/white"
-            android:text="View Video" />
+            android:text="Add Photo" />
 	        
 	 </LinearLayout>
 

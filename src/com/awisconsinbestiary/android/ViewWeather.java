@@ -1,9 +1,9 @@
-package com.example.uwoshkoshbestiary;
+package com.awisconsinbestiary.android;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.example.uwoshkoshbestiary.NewSubmission.AsynchWeather;
+import com.awisconsinbestiary.android.NewSubmission.AsynchWeather;
 
 import database.Entry;
 import android.app.Activity;

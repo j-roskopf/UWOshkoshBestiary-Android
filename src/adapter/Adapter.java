@@ -11,7 +11,7 @@ import java.util.List;
 import com.androidquery.AQuery;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.androidquery.callback.AjaxStatus;
-import com.example.uwoshkoshbestiary.R;
+import com.awisconsinbestiary.android.R;
 
 import database.Entry;
 

@@ -3,7 +3,7 @@
  * on the website http://www.edumobile.org/android/android-development/audio-recording-in-wav-format-in-android-programming/
  */
 
-package com.example.uwoshkoshbestiary;
+package com.awisconsinbestiary.android;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import database.Entry;
 
 import android.app.Activity;
 import android.graphics.Color;

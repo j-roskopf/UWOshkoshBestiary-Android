@@ -1,61 +1,39 @@
-package com.example.uwoshkoshbestiary;
+package com.awisconsinbestiary.android;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.androidquery.AQuery;
-import com.androidquery.callback.AbstractAjaxCallback;
-import com.androidquery.callback.AjaxCallback;
+
 import com.androidquery.callback.AjaxStatus;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
-import com.loopj.android.http.ResponseHandlerInterface;
+
 
 import database.DatabaseHelper;
 import database.Entry;
 
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.accounts.AccountManager;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
@@ -525,7 +503,37 @@ public class NewSubmission extends Fragment implements LocationListener {
 			@Override
 			public void onClick(View arg0) {
 				if (hasCamera()) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(
+					
+					String timestamp = new SimpleDateFormat(
+							"yyyy-MM-dd-HH-mm-ss")
+							.format(Calendar.getInstance()
+									.getTime());
+					e.setUsingExistingPhotoOrVideo(true);
+					e.setPhotoTime(timestamp);
+					File filepath = Environment
+							.getExternalStorageDirectory();
+					File dir = new File(filepath
+							.getAbsolutePath()
+							+ "/UWOBestiary/");
+					dir.mkdirs();
+					File mediaFile = new File(Environment
+							.getExternalStorageDirectory()
+							.getAbsolutePath()
+							+ "/UWOBestiary/Picture_"
+							+ timestamp + ".jpg");
+					Intent intent = new Intent(
+							MediaStore.ACTION_IMAGE_CAPTURE);
+					// Store the old Uri so it can be
+					// deleted
+					oldImageFileUri = imageFileUri;
+					imageFileUri = Uri.fromFile(mediaFile);
+					intent.putExtra(
+							MediaStore.EXTRA_OUTPUT,
+							imageFileUri);
+					startActivityForResult(intent,
+							CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
+					
+/*					AlertDialog.Builder builder = new AlertDialog.Builder(
 							getActivity());
 					builder.setTitle("Choose an option");
 					builder.setItems(
@@ -648,7 +656,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 									}
 								}
 							});
-					builder.create().show();
+					builder.create().show();*/
 
 				} else {
 					// No camera present!
@@ -661,7 +669,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 		});
 		// Opens the activity that the user can view their video
 		viewVideoButton = (Button) getActivity().findViewById(R.id.viewVideo);
-		viewVideoButton.setOnClickListener(new OnClickListener() {
+/*		viewVideoButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
@@ -679,7 +687,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 
 			}
 
-		});
+		});*/
 
 		// Attempts to save the entry into the database
 		saveButton = (Button) getActivity().findViewById(R.id.saveButton);
@@ -878,14 +886,13 @@ public class NewSubmission extends Fragment implements LocationListener {
 					builder.addTextBody("last_referer","http://awisconsinbestiary.org/WisconsinBeastiary/front-page",ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("agreement:list", "I agree",ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("app-version", "1",ContentType.MULTIPART_FORM_DATA);
-					builder.addTextBody("topic", "Bestiary Submission",ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("device", android.os.Build.MODEL,ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("fieldset", "default",ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("add_reference.field:record", "default",ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("add_reference.type:record", "",ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("add_reference.destination:record", "",ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("weather", "",ContentType.MULTIPART_FORM_DATA);
-
+						
 					builder.addTextBody("form.submitted", "1",ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("_authenticator",
 							"6b9ec1bdad9b1656f6ebf3720017d3c9118ed11f",ContentType.MULTIPART_FORM_DATA);
@@ -914,7 +921,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 									builder.addTextBody("date-photo-was-taken_ampm","PM",ContentType.MULTIPART_FORM_DATA);
 
 								}else{
-									builder.addTextBody("date-photo-was-taken_day",photoTime[3],ContentType.MULTIPART_FORM_DATA);
+									builder.addTextBody("date-photo-was-taken_day",photoTime[3],ContentType.MULTIPART_FORM_DATA);  
 
 									builder.addTextBody("date-photo-was-taken_ampm","AM",ContentType.MULTIPART_FORM_DATA);
 								}
@@ -1498,9 +1505,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
+
 		return super.onOptionsItemSelected(item);
 	}
 
