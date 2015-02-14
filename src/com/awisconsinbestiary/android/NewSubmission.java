@@ -837,7 +837,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 					builder.addTextBody("last-name", e.getLastName(),ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("topic", "Bestiary Submission",ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("school-affiliation", e.getAffiliation(),ContentType.MULTIPART_FORM_DATA);
-					builder.addTextBody("animal", "ameba",ContentType.MULTIPART_FORM_DATA);
+					builder.addTextBody("animal", e.getGroup(),ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("common-name", e.getCommonName(),ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("species", e.getSpecies(),ContentType.MULTIPART_FORM_DATA);
 					builder.addTextBody("how-many-of-this-animal-did-you-see",
@@ -1073,6 +1073,11 @@ public class NewSubmission extends Fragment implements LocationListener {
 																		+ ":0:0:0");
 																if(view.isShown()){
 																	String[] photoTime = e.getPhotoTime().split(":");
+																	Log.d("D","123456789 " + photoTime[0]);
+																	Log.d("D","123456789 " + photoTime[1]);
+																	Log.d("D","123456789 " + photoTime[2]);
+																	Log.d("D","123456789 " + photoTime[3]);
+																	Log.d("D","123456789 " + photoTime[4]);
 																	builder.addTextBody("date-photo-was-taken","",ContentType.MULTIPART_FORM_DATA);
 																	builder.addTextBody("date-photo-was-taken_year",photoTime[0],ContentType.MULTIPART_FORM_DATA);
 																	builder.addTextBody("date-photo-was-taken_month",photoTime[1],ContentType.MULTIPART_FORM_DATA);
@@ -1090,7 +1095,7 @@ public class NewSubmission extends Fragment implements LocationListener {
 																	  
 																	  
 																	Log.d("D","123456789 RIGHT BEFORE THE LAST SUBMIT");
-																	new AsyncSubmission().execute(builder);
+																	//new AsyncSubmission().execute(builder);
 																}
 																
 															}

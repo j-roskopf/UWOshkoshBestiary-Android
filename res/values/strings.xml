@@ -96,28 +96,28 @@
     </string-array>
     <string-array name="group_array">
         <item>Choose a group/phyla</item>
-        <item>Ameba</item>
-        <item>Amphibians</item>
-        <item>Bird</item>
-        <item>Butterflies</item>
-        <item>Centipedes</item>
-        <item>Ciliates</item>
-        <item>Crustacean</item>
-        <item>Dragonflies</item>
-        <item>Fish</item>
-        <item>Flagellate</item>
-        <item>Flatworm</item>
-        <item>Hydrai</item>
-        <item>Leech</item>
-        <item>Mammal</item>
-        <item>Millpedes</item>
-        <item>Mussels</item>
-        <item>Reptile</item>
-        <item>Rotifer</item>
-        <item>Slug/Snail</item>
-        <item>Sponge</item>
-        <item>Ticks/Spiders</item>
-        <item>Unsure</item>
+        <item>ameba</item>
+        <item>amphibians</item>
+        <item>bird</item>
+        <item>butterflies</item>
+        <item>centipedes</item>
+        <item>ciliates</item>
+        <item>crustacean</item>
+        <item>dragonflies</item>
+        <item>fish</item>
+        <item>flagellate</item>
+        <item>flatworm</item>
+        <item>hydra</item>
+        <item>leech</item>
+        <item>mammal</item>
+        <item>millpedes</item>
+        <item>mussels</item>
+        <item>reptile</item>
+        <item>rotifer</item>
+        <item>slug/snails</item>
+        <item>sponge</item>
+        <item>ticks/spiders</item>
+        <item>unsure</item>
     </string-array>
     <string-array name="affiliation_array">
         <item>Choose an affiliation</item>
